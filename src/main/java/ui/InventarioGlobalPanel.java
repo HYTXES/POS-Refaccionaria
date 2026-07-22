@@ -54,7 +54,7 @@ public class InventarioGlobalPanel extends JPanel {
         JButton btnActualizar = new JButton("🔄 Refrescar Nube");
         JButton btnDetalles = new JButton("🔍 Ver Stock por Sucursal");
         
-        // Estilo rápido a los botones
+        // Estilo rapido a los botones
         Font fuenteBotones = new Font("SansSerif", Font.BOLD, 14);
         btnActualizar.setFont(fuenteBotones);
         btnDetalles.setFont(fuenteBotones);
@@ -77,7 +77,6 @@ public class InventarioGlobalPanel extends JPanel {
             mostrarDetallesSucursal(codigo, nombre, isDark);
         });
 
-        // Cargar datos al mostrar el panel por primera vez
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -87,7 +86,7 @@ public class InventarioGlobalPanel extends JPanel {
     }
 
     private void cargarDatosGlobales() {
-        modeloGlobal.setRowCount(0); // Limpiar tabla
+        modeloGlobal.setRowCount(0); // para limpiar la tabla
         
         String sql = "SELECT codigo_barras, nombre, SUM(stock_actual) as stock_total " +
                      "FROM inventario_global GROUP BY codigo_barras, nombre ORDER BY nombre ASC";

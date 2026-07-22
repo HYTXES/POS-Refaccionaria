@@ -9,9 +9,9 @@ public class InicioPanel extends JPanel {
 
     private DashboardLocalImpl repo;
     
-    // Labels Financieros y de Operación
+    // Labels financieros y de operacion
     private JLabel lblVentasTotales, lblRetiros, lblOperaciones;
-    // Labels de Inventario
+    // Labels de inventario
     private JLabel lblArticulosVendidos, lblEntradas, lblBajoStock;
 
     public InicioPanel() {
@@ -47,7 +47,6 @@ public class InicioPanel extends JPanel {
         
         add(pnlHeader, BorderLayout.NORTH);
 
-        // --- Contenedor de las tarjetas KPI (2 Filas x 3 Columnas) ---
         JPanel pnlTarjetas = new JPanel(new GridLayout(2, 3, 25, 25));
         pnlTarjetas.setOpaque(false);
 
@@ -60,19 +59,19 @@ public class InicioPanel extends JPanel {
         lblEntradas = new JLabel("0");
         lblBajoStock = new JLabel("0");
 
-        // Fila 1: Finanzas y Operaciones Base
+        // Fila 1: Finanzas y operaciones Base
         pnlTarjetas.add(crearTarjeta("Ingresos Totales", lblVentasTotales, "#0F43AB", "💵", isDark)); 
         pnlTarjetas.add(crearTarjeta("Tickets Emitidos", lblOperaciones, "#16A34A", "🧾", isDark)); 
         pnlTarjetas.add(crearTarjeta("Retiros de Caja", lblRetiros, "#DC2626", "💸", isDark)); 
 
-        // Fila 2: Flujo de Inventario
+        // Fila 2: Flujo de inventario
         pnlTarjetas.add(crearTarjeta("Artículos Vendidos", lblArticulosVendidos, "#8B5CF6", "📦", isDark)); 
         pnlTarjetas.add(crearTarjeta("Entradas de Mercancía", lblEntradas, "#0284C7", "🚚", isDark)); 
         pnlTarjetas.add(crearTarjeta("Alertas de Bajo Stock", lblBajoStock, "#F59E0B", "⚠️", isDark)); 
 
         add(pnlTarjetas, BorderLayout.CENTER);
 
-        // Intento de recargar datos automáticamente
+        // Intento de recargar datos automaticamente
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {

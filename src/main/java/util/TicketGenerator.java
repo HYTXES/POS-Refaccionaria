@@ -4,23 +4,39 @@ import javax.print.*;
 import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.prefs.Preferences;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class TicketGenerator {
 
     public static void generarTicket(String folio, DefaultTableModel carrito, double total, String vendedor) {
-        Preferences prefs = Preferences.userRoot().node("RefaccionariaChayitoConfig");
-        String nombreNegocio = prefs.get("nombreNegocio", "Refaccionaria Chayito");
-        String telefono = prefs.get("telefono", "");
-        String mensaje = prefs.get("mensajeTicket", "¡Gracias por su compra!");
+        // --- CARGAR DATOS DINÁMICOS DESDE LA BASE DE DATOS ---
+        String nombreNegocio = getConfig("empresa_nombre", "Refaccionaria Chayito");
+        String rfc = getConfig("empresa_rfc", "");
+        String direccion = getConfig("empresa_direccion", "");
+        String telefono = getConfig("empresa_telefono", "");
+        String cabecera = getConfig("ticket_cabecera", "");
+        String pie = getConfig("ticket_pie", "¡Gracias por su compra!");
 
         StringBuilder ticket = new StringBuilder();
 
         ticket.append("\n"); // Margen superior
+        
+        // --- ENCABEZADO DEL TICKET ---
         ticket.append(centrarTexto(nombreNegocio, 32)).append("\n");
         
+        if (!rfc.isEmpty()) {
+            ticket.append(centrarTexto("RFC: " + rfc, 32)).append("\n");
+        }
+        if (!direccion.isEmpty()) {
+            ticket.append(centrarTexto(direccion, 32)).append("\n");
+        }
         if (!telefono.isEmpty()) {
             ticket.append(centrarTexto("Tel: " + telefono, 32)).append("\n");
+        }
+        if (!cabecera.isEmpty()) {
+            ticket.append("\n").append(centrarTexto(cabecera, 32)).append("\n");
         }
         
         ticket.append("--------------------------------\n");
@@ -46,17 +62,43 @@ public class TicketGenerator {
         ticket.append("--------------------------------\n");
         ticket.append(String.format("%32s\n", "TOTAL: $" + String.format("%.2f", total)));
         ticket.append("\n");
-        ticket.append(centrarTexto(mensaje, 32)).append("\n");
         
-        ticket.append("\n\n\n\n\n"); 
+        // --- PIE DE PÁGINA ---
+        ticket.append(centrarTexto(pie, 32)).append("\n");
         
+        ticket.append("\n\n\n\n\n"); // Margen inferior para permitir el corte
+        
+        // Comando de corte de papel
         ticket.append((char)29).append("V").append((char)66).append((char)0);
 
         imprimirDirecto(ticket.toString());
     }
 
+    // --- MÉTODO AUXILIAR PARA CONSULTAR LA BASE DE DATOS ---
+    private static String getConfig(String clave, String porDefecto) {
+        String sql = "SELECT valor FROM configuracion WHERE clave = ?";
+        try (Connection conn = database.ConexionLocal.conectar();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, clave);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String val = rs.getString("valor");
+                    if (val != null && !val.trim().isEmpty()) {
+                        return val;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error leyendo configuración del ticket: " + e.getMessage());
+        }
+        return porDefecto;
+    }
+
+    // --- CORTA Y CENTRA EL TEXTO PARA IMPRESORA DE 58MM ---
     private static String centrarTexto(String texto, int anchoMaximo) {
-        if (texto.length() >= anchoMaximo) return texto;
+        if (texto.length() >= anchoMaximo) {
+            return texto.substring(0, anchoMaximo); // Cortar para evitar descuadres en el papel
+        }
         int espacios = (anchoMaximo - texto.length()) / 2;
         return " ".repeat(espacios) + texto;
     }

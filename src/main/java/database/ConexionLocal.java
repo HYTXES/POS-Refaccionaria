@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class ConexionDB {
+public class ConexionLocal {
     
     private static String urlDB;
 
@@ -16,7 +16,7 @@ public class ConexionDB {
 
     private static void cargarConfiguracion() {
         Properties prop = new Properties();
-        try (InputStream input = ConexionDB.class.getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input = ConexionLocal.class.getClassLoader().getResourceAsStream("config.properties")) {
             
             if (input == null) {
                 System.err.println("Advertencia: No se encontra config.properties. Se usara la ruta por defecto.");

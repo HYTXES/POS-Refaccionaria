@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import entities.Usuario;
 import util.SeguridadUtil;
 import java.sql.*;
@@ -20,7 +20,7 @@ public class UsuarioLocalImpl {
                 + "password VARCHAR(255) NOT NULL, "
                 + "rol VARCHAR(20) NOT NULL)";
 
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             verificarAdminInicial(conn);
@@ -50,7 +50,7 @@ public class UsuarioLocalImpl {
         String passHasheada = SeguridadUtil.hashPassword(u.getPassword());
         
         String sql = "INSERT INTO usuarios(id, username, password, rol) VALUES(?,?,?,?)";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, u.getId());
             pstmt.setString(2, u.getUsername());
             pstmt.setString(3, passHasheada);
@@ -65,7 +65,7 @@ public class UsuarioLocalImpl {
     public List<Usuario> obtenerTodos() {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT id, username, rol FROM usuarios";
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Usuario u = new Usuario(rs.getString("id"));
                 u.setUsername(rs.getString("username"));
@@ -81,7 +81,7 @@ public class UsuarioLocalImpl {
         String passHasheada = SeguridadUtil.hashPassword(nuevaPasswordPlana);
         
         String sql = "UPDATE usuarios SET password=? WHERE id=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, passHasheada); 
             pstmt.setString(2, id);
             pstmt.executeUpdate();
@@ -93,7 +93,7 @@ public class UsuarioLocalImpl {
 
     public boolean eliminar(String id) {
         String sql = "DELETE FROM usuarios WHERE id=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, id);
             pstmt.executeUpdate();
             return true;
@@ -106,7 +106,7 @@ public class UsuarioLocalImpl {
         String intentoHash = SeguridadUtil.hashPassword(passwordPlana);
         
         String sql = "SELECT * FROM usuarios WHERE username = ? AND password = ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             pstmt.setString(2, intentoHash);
             

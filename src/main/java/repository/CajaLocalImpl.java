@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import java.sql.*;
 import java.util.UUID;
 
@@ -22,19 +22,16 @@ public class CajaLocalImpl {
                 + "estado VARCHAR(20) DEFAULT 'ABIERTA', "
                 + "sincronizado INTEGER DEFAULT 0)";
 
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             try { stmt.execute("ALTER TABLE control_caja ADD COLUMN sincronizado INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
-            
-            // --- AUTO-SANACIÓN: Convierte los estados nulos o fantasmas en ABIERTA ---
             try { stmt.execute("UPDATE control_caja SET estado = 'ABIERTA' WHERE estado IS NULL"); } catch (SQLException ignored) {}
         } catch (SQLException ignored) {}
     }
 
     public boolean hayCajaAbierta() {
-        // Buscar cualquier registro que diga ABIERTA
         String sql = "SELECT id FROM control_caja WHERE UPPER(estado) = 'ABIERTA' LIMIT 1";
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              PreparedStatement pst = conn.prepareStatement(sql);
              ResultSet rs = pst.executeQuery()) {
             return rs.next();
@@ -44,9 +41,8 @@ public class CajaLocalImpl {
     }
 
     public void abrirCaja(String vendedor, double fondo) {
-        // INSERCIÓN EXPLÍCITA DEL ESTADO 'ABIERTA'
         String sql = "INSERT INTO control_caja (id, vendedor, fondo_inicial, estado, sincronizado) VALUES (?, ?, ?, 'ABIERTA', 0)";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, UUID.randomUUID().toString());
             pst.setString(2, vendedor);
             pst.setDouble(3, fondo);
@@ -58,7 +54,7 @@ public class CajaLocalImpl {
 
     public double obtenerFondoInicial() {
         String sql = "SELECT fondo_inicial FROM control_caja WHERE UPPER(estado) = 'ABIERTA' LIMIT 1";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
             if (rs.next()) return rs.getDouble("fondo_inicial");
         } catch (SQLException e) {}
         return 0.0;
@@ -66,7 +62,7 @@ public class CajaLocalImpl {
 
     public double calcularVentasTurno() {
         String sql = "SELECT SUM(total) as total_ventas FROM ventas WHERE fecha >= (SELECT fecha_apertura FROM control_caja WHERE UPPER(estado) = 'ABIERTA' LIMIT 1)";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
             if (rs.next()) return rs.getDouble("total_ventas");
         } catch (SQLException e) {}
         return 0.0;
@@ -75,7 +71,7 @@ public class CajaLocalImpl {
     public boolean cerrarCaja(double totalReal) {
         double ventasTurno = calcularVentasTurno();
         String sql = "UPDATE control_caja SET estado = 'CERRADA', ventas_turno = ?, total_real = ?, fecha_cierre = CURRENT_TIMESTAMP, sincronizado = 0 WHERE UPPER(estado) = 'ABIERTA'";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setDouble(1, ventasTurno);
             pst.setDouble(2, totalReal);
             return pst.executeUpdate() > 0;
@@ -88,7 +84,7 @@ public class CajaLocalImpl {
         java.util.List<String[]> lista = new java.util.ArrayList<>();
         String sql = "SELECT id, vendedor, fondo_inicial, ventas_turno, total_real, fecha_cierre, estado FROM control_caja ORDER BY fecha_cierre DESC";
         
-        try (java.sql.Connection conn = database.ConexionDB.conectar(); 
+        try (java.sql.Connection conn = database.ConexionLocal.conectar(); 
              java.sql.Statement stmt = conn.createStatement(); 
              java.sql.ResultSet rs = stmt.executeQuery(sql)) {
              
@@ -120,7 +116,7 @@ public class CajaLocalImpl {
 
     public boolean eliminarCorte(String id) {
         String sql = "DELETE FROM control_caja WHERE id = ?";
-        try (java.sql.Connection conn = database.ConexionDB.conectar(); 
+        try (java.sql.Connection conn = database.ConexionLocal.conectar(); 
              java.sql.PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, id);
             return pst.executeUpdate() > 0;
@@ -131,7 +127,7 @@ public class CajaLocalImpl {
     
     public String obtenerFechaAperturaActual() {
         String sql = "SELECT fecha_apertura FROM control_caja WHERE UPPER(estado) = 'ABIERTA' LIMIT 1";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
             if (rs.next()) return rs.getString("fecha_apertura");
         } catch (SQLException e) {}
         return null;

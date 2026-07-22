@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import entities.Venta;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -31,7 +31,7 @@ public class VentaLocalImpl {
                 + "subtotal DECIMAL(10,2), "
                 + "FOREIGN KEY(venta_id) REFERENCES ventas(id))";
 
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement()) {
             stmt.execute(sqlVentas);
             stmt.execute(sqlDetalles);
             
@@ -50,7 +50,7 @@ public class VentaLocalImpl {
         
         Connection conn = null;
         try {
-            conn = ConexionDB.conectar();
+            conn = ConexionLocal.conectar();
             conn.setAutoCommit(false); 
 
             try (PreparedStatement pstVenta = conn.prepareStatement(insertVenta)) {
@@ -101,7 +101,7 @@ public class VentaLocalImpl {
         String sql = "SELECT * FROM ventas ORDER BY fecha DESC";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
-        try (Connection conn = ConexionDB.conectar(); 
+        try (Connection conn = ConexionLocal.conectar(); 
              Statement stmt = conn.createStatement(); 
              ResultSet rs = stmt.executeQuery(sql)) {
             
@@ -134,7 +134,7 @@ public class VentaLocalImpl {
         String sqlVenta = "DELETE FROM ventas WHERE id = ?";
         Connection conn = null;
         try {
-            conn = ConexionDB.conectar();
+            conn = ConexionLocal.conectar();
             conn.setAutoCommit(false);
             try (PreparedStatement pstDetalles = conn.prepareStatement(sqlDetalles)) {
                 pstDetalles.setString(1, idVenta);
@@ -158,7 +158,6 @@ public class VentaLocalImpl {
         }
     }
 
-    // --- MÉTODO AGREGADO PARA EL REPORTE DETALLADO DE EXCEL ---
     public List<String[]> obtenerDetallesParaReporte() {
         List<String[]> detalles = new ArrayList<>();
         
@@ -168,7 +167,7 @@ public class VentaLocalImpl {
                      "JOIN productos p ON vd.codigo_producto = p.codigo_barras " +
                      "ORDER BY v.fecha DESC";
 
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 

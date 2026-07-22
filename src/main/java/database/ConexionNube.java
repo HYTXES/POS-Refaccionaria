@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.swing.JOptionPane;
 
 public class ConexionNube {
 
@@ -26,31 +25,13 @@ public class ConexionNube {
     public static void cargarConfiguracionLocal() {
         String sqlCrear = "CREATE TABLE IF NOT EXISTS configuracion (clave VARCHAR(50) PRIMARY KEY, valor VARCHAR(100))";
         String sqlLeer = "SELECT valor FROM configuracion WHERE clave = 'nombre_sucursal'";
-        String sqlInsertar = "INSERT INTO configuracion (clave, valor) VALUES ('nombre_sucursal', ?)";
 
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement()) {
             stmt.execute(sqlCrear);
 
             try (ResultSet rs = stmt.executeQuery(sqlLeer)) {
                 if (rs.next()) {
                     SUCURSAL_ACTUAL = rs.getString("valor");
-                } else {
-                    String input = JOptionPane.showInputDialog(null, 
-                        "⚙️ Configuración Inicial del Sistema\n\nIngresa el nombre de esta sucursal o punto de venta:\n(Ej: Matriz, Sucursal Norte, Tienda Centro)", 
-                        "Bienvenido a Refaccionaria Chayito", 
-                        JOptionPane.QUESTION_MESSAGE);
-
-                    if (input == null || input.trim().isEmpty()) {
-                        SUCURSAL_ACTUAL = "Sucursal General";
-                    } else {
-                        SUCURSAL_ACTUAL = input.trim();
-                    }
-
-                    try (PreparedStatement pst = conn.prepareStatement(sqlInsertar)) {
-                        pst.setString(1, SUCURSAL_ACTUAL);
-                        pst.executeUpdate();
-                    }
-                    JOptionPane.showMessageDialog(null, "Identidad registrada con éxito como: " + SUCURSAL_ACTUAL, "Configuración Lista", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         } catch (SQLException e) {

@@ -15,7 +15,7 @@ public class DashboardAdmin extends JFrame {
     private CajaLocalImpl cajaRepo;
 
     public DashboardAdmin() {
-        // --- 1. CONFIGURACIÓN VISUAL (DEBE IR ANTES DE TODO) ---
+        // --- 1. CONFIGURACIÓN VISUAL ---
         UIManager.put("TabbedPane.underlineColor", Color.decode("#0F43AB"));
         UIManager.put("TabbedPane.selectedUnderlineColor", Color.decode("#0F43AB"));
         UIManager.put("TabbedPane.focusColor", Color.decode("#0F43AB"));
@@ -55,16 +55,16 @@ public class DashboardAdmin extends JFrame {
 
         String nombreUsuario = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
         JPanel pnlTitulos = new JPanel(new GridLayout(2, 1));
-        pnlTitulos.setOpaque(false); 
-        
+        pnlTitulos.setOpaque(false);
+
         JLabel lblTitulo = new JLabel("Panel de Control Administrativo");
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
-        
-        JLabel lblSubtitulo = new JLabel("👤 Usuario activo: " + nombreUsuario);
-        lblSubtitulo.setForeground(new Color(148, 163, 184)); 
+
+        JLabel lblSubtitulo = new JLabel("👤 Usuario: " + nombreUsuario);
+        lblSubtitulo.setForeground(new Color(148, 163, 184));
         lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        
+
         pnlTitulos.add(lblTitulo);
         pnlTitulos.add(lblSubtitulo);
         pnlHeader.add(pnlTitulos, BorderLayout.WEST);
@@ -90,7 +90,7 @@ public class DashboardAdmin extends JFrame {
         });
 
         JButton btnCerrarVentana = crearBotonVentana("✕");
-        btnCerrarVentana.addActionListener(e -> System.exit(0)); 
+        btnCerrarVentana.addActionListener(e -> System.exit(0));
 
         pnlControlesVentana.add(btnMinimizar);
         pnlControlesVentana.add(btnMaximizar);
@@ -100,7 +100,7 @@ public class DashboardAdmin extends JFrame {
         pnlBotonesAccion.setOpaque(false);
 
         JButton btnRetiro = new JButton("💸 Retirar Efectivo");
-        btnRetiro.setBackground(new Color(245, 158, 11)); 
+        btnRetiro.setBackground(new Color(245, 158, 11));
         btnRetiro.setForeground(Color.WHITE);
         btnRetiro.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnRetiro.setFocusPainted(false);
@@ -108,7 +108,7 @@ public class DashboardAdmin extends JFrame {
         btnRetiro.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JButton btnCorteCaja = new JButton("💵 Corte de Caja");
-        btnCorteCaja.setBackground(new Color(46, 204, 113)); 
+        btnCorteCaja.setBackground(new Color(46, 204, 113));
         btnCorteCaja.setForeground(Color.WHITE);
         btnCorteCaja.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnCorteCaja.setFocusPainted(false);
@@ -116,7 +116,7 @@ public class DashboardAdmin extends JFrame {
         btnCorteCaja.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JButton btnLogout = new JButton("🚪 Cerrar Sesión");
-        btnLogout.setBackground(new Color(220, 38, 38)); 
+        btnLogout.setBackground(new Color(220, 38, 38));
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnLogout.setFocusPainted(false);
@@ -136,7 +136,7 @@ public class DashboardAdmin extends JFrame {
         });
 
         btnCorteCaja.addActionListener(e -> procesarCorteCaja());
-        
+
         btnLogout.addActionListener(e -> {
             Sesion.setUsuarioActual(null);
             new Login().setVisible(true);
@@ -149,13 +149,13 @@ public class DashboardAdmin extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 16));
-        tabbedPane.setFocusable(false); 
+        tabbedPane.setFocusable(false);
 
         tabbedPane.addTab("🏠 Inicio", new InicioPanel());
         tabbedPane.addTab("🛒 Punto de Venta", new CajaPanel());
         tabbedPane.addTab("📦 Inventario Local", new InventarioPanel());
+        tabbedPane.addTab("☁️ Otras Sucursales", new InventarioGlobalPanel());
         tabbedPane.addTab("🚚 Proveedores", new ProveedoresPanel());
-        tabbedPane.addTab("☁️ Otras Sucursales", new InventarioGlobalPanel()); 
         tabbedPane.addTab("📊 Historial de Ventas", new HistorialVentasPanel());
         tabbedPane.addTab("👥 Usuarios", new UsuariosPanel());
         tabbedPane.addTab("💵 Cortes de Caja", new CortesCajaPanel());
@@ -163,7 +163,7 @@ public class DashboardAdmin extends JFrame {
 
         tabbedPane.addChangeListener(e -> {
             if (tabbedPane.getSelectedIndex() == 3) {
-                UIManager.put("TabbedPane.underlineColor", new Color(15, 67, 171, 100)); 
+                UIManager.put("TabbedPane.underlineColor", new Color(15, 67, 171, 100));
             } else {
                 UIManager.put("TabbedPane.underlineColor", Color.decode("#0F43AB"));
             }
@@ -177,17 +177,17 @@ public class DashboardAdmin extends JFrame {
     public void iniciarSistema() {
         if (cajaRepo.hayCajaAbierta()) {
             double fondoActual = cajaRepo.obtenerFondoInicial();
-            JOptionPane.showMessageDialog(null, 
-                "Turno en curso.\nFondo registrado en sistema: $" + String.format("%.2f", fondoActual), 
-                "Información de Caja", 
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Turno en curso.\nFondo registrado en sistema: $" + String.format("%.2f", fondoActual),
+                    "Información de Caja",
+                    JOptionPane.INFORMATION_MESSAGE);
             this.setVisible(true);
         } else {
             int opcion = JOptionPane.showConfirmDialog(null,
-                "La caja actualmente está CERRADA.\n¿Deseas abrir el turno de caja con fondo inicial ahora para poder cobrar ventas?",
-                "Apertura de Caja",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
+                    "La caja actualmente está CERRADA.\n¿Deseas abrir el turno de caja con fondo inicial ahora para poder cobrar ventas?",
+                    "Apertura de Caja",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
 
             if (opcion == JOptionPane.YES_OPTION) {
                 if (ejecutarValidacionCaja()) {
@@ -205,17 +205,21 @@ public class DashboardAdmin extends JFrame {
     private boolean ejecutarValidacionCaja() {
         while (true) {
             String input = JOptionPane.showInputDialog(null, "🔒 APERTURA DE TURNO (ADMIN)\nIngresa el fondo inicial en caja (efectivo base):", "0.00");
-            if (input == null) return false;
+            if (input == null) {
+                return false;
+            }
             try {
                 double fondo = Double.parseDouble(input);
-                if (fondo < 0) throw new NumberFormatException();
-                
+                if (fondo < 0) {
+                    throw new NumberFormatException();
+                }
+
                 String vendedor = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
                 cajaRepo.abrirCaja(vendedor, fondo);
                 JOptionPane.showMessageDialog(null, "Caja abierta exitosamente con $" + String.format("%.2f", fondo));
                 return true;
-            } catch (NumberFormatException ex) { 
-                JOptionPane.showMessageDialog(null, "Por favor ingresa una cantidad numérica válida y positiva.", "Entrada Inválida", JOptionPane.WARNING_MESSAGE); 
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Por favor ingresa una cantidad numérica válida y positiva.", "Entrada Inválida", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -227,14 +231,18 @@ public class DashboardAdmin extends JFrame {
         }
 
         while (true) {
-            String input = JOptionPane.showInputDialog(this, 
-                "💵 CORTE DE CAJA (MODO ADMINISTRADOR)\nSe cerrará y validará el turno que el cajero dejó abierto.\n¿Cuánto dinero físico EXACTO hay en el cajón?", "0.00");
-            
-            if (input == null) return; 
-            
+            String input = JOptionPane.showInputDialog(this,
+                    "💵 CORTE DE CAJA (MODO ADMINISTRADOR)\nSe cerrará y validará el turno que el cajero dejó abierto.\n¿Cuánto dinero físico EXACTO hay en el cajón?", "0.00");
+
+            if (input == null) {
+                return;
+            }
+
             try {
                 double totalRealCajon = Double.parseDouble(input);
-                if (totalRealCajon < 0) throw new NumberFormatException();
+                if (totalRealCajon < 0) {
+                    throw new NumberFormatException();
+                }
 
                 double fondo = cajaRepo.obtenerFondoInicial();
                 double ventas = cajaRepo.calcularVentasTurno();
@@ -242,12 +250,12 @@ public class DashboardAdmin extends JFrame {
                 String fechaApertura = cajaRepo.obtenerFechaAperturaActual();
                 double retiros = dashRepo.calcularRetirosTurnoActual(fechaApertura);
 
-                double totalEsperado = fondo + ventas - retiros; 
+                double totalEsperado = fondo + ventas - retiros;
                 double diferencia = totalRealCajon - totalEsperado;
 
-                String estadoCorte = (diferencia == 0) ? "EXCELENTE (Cuadrado)" 
-                                   : (diferencia > 0) ? "SOBRANTE" 
-                                   : "FALTANTE";
+                String estadoCorte = (diferencia == 0) ? "EXCELENTE (Cuadrado)"
+                        : (diferencia > 0) ? "SOBRANTE"
+                                : "FALTANTE";
 
                 String mensaje = String.format("""
                     📊 RESUMEN DE CORTE DE CAJA (ADMIN):
@@ -264,7 +272,7 @@ public class DashboardAdmin extends JFrame {
                     """, fondo, ventas, retiros, totalEsperado, totalRealCajon, diferencia, estadoCorte);
 
                 int confirm = JOptionPane.showConfirmDialog(this, mensaje, "Confirmar Corte", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                
+
                 if (confirm == JOptionPane.YES_OPTION) {
                     if (cajaRepo.cerrarCaja(totalRealCajon)) {
                         String vendedor = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
@@ -293,6 +301,7 @@ public class DashboardAdmin extends JFrame {
     }
 
     private class PanelHeaderModerno extends JPanel {
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -311,10 +320,10 @@ public class DashboardAdmin extends JFrame {
 
             g2d.setColor(Color.decode("#0F43AB"));
             Path2D.Double poly = new Path2D.Double();
-            poly.moveTo(w - 400, 0); 
-            poly.lineTo(w, 0);        
-            poly.lineTo(w, h);        
-            poly.lineTo(w - 450, h); 
+            poly.moveTo(w - 400, 0);
+            poly.lineTo(w, 0);
+            poly.lineTo(w, h);
+            poly.lineTo(w - 450, h);
             poly.closePath();
             g2d.fill(poly);
 

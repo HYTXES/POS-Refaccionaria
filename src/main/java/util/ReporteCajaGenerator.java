@@ -10,20 +10,18 @@ public class ReporteCajaGenerator {
 
     public static void generarTxtCorte(String vendedor, double fondo, double ventas, double totalEsperado, double totalReal, double diferencia, String estadoCorte) {
         try {
-            // Crear una carpeta para mantener organizado el escritorio/directorio
             File directorio = new File("Cortes_Caja");
             if (!directorio.exists()) {
                 directorio.mkdir();
             }
 
-            // Nombramos el archivo con la fecha y hora para que nunca se sobreescriban
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fechaFmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
             File archivo = new File(directorio, "Corte_" + vendedor + "_" + timestamp + ".txt");
 
             try (PrintWriter out = new PrintWriter(new FileWriter(archivo))) {
                 out.println("========================================");
-                out.println("      CORTE DE CAJA - CHAYITO           ");
+                out.println("             CORTE DE CAJA              ");
                 out.println("========================================");
                 out.println("Fecha y Hora : " + fechaFmt);
                 out.println("Cajero/Admin : " + vendedor);

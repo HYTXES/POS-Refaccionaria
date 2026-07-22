@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import entities.Producto;
 import interfaces.IProductoRepository;
 import java.sql.*;
@@ -28,7 +28,7 @@ public class ProductoLocalImpl implements IProductoRepository {
                 + "proveedor VARCHAR(100), "
                 + "sincronizado INTEGER DEFAULT 0)";
 
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -41,7 +41,7 @@ public class ProductoLocalImpl implements IProductoRepository {
                 + "vehiculos_compatibles, precio_compra, precio_venta, stock_actual, stock_critico, sincronizado) "
                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, producto.getId());
@@ -58,7 +58,6 @@ public class ProductoLocalImpl implements IProductoRepository {
             
             pstmt.executeUpdate();
             
-            // --- NUEVO: Registrar entrada de mercancía si se creó con stock inicial ---
             if (producto.getStockActual() > 0) {
                 DashboardLocalImpl dashRepo = new DashboardLocalImpl();
                 dashRepo.registrarEntradaMercancia(producto.getCodigoBarras(), producto.getStockActual());
@@ -75,7 +74,7 @@ public class ProductoLocalImpl implements IProductoRepository {
         List<Producto> lista = new ArrayList<>();
         String sql = "SELECT * FROM productos";
 
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -101,7 +100,7 @@ public class ProductoLocalImpl implements IProductoRepository {
     @Override
     public Producto buscarPorCodigo(String codigoBarras) {
         String sql = "SELECT * FROM productos WHERE codigo_barras = ?";
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, codigoBarras);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -127,12 +126,10 @@ public class ProductoLocalImpl implements IProductoRepository {
     @Override
     public boolean actualizar(Producto producto) {
         
-        // --- NUEVO: Calcular si hubo un aumento de stock antes de actualizar ---
         Producto productoAnterior = buscarPorCodigo(producto.getCodigoBarras());
         if (productoAnterior != null) {
             int diferenciaStock = producto.getStockActual() - productoAnterior.getStockActual();
             
-            // Si la diferencia es mayor a cero, significa que le sumamos piezas al inventario
             if (diferenciaStock > 0) {
                 DashboardLocalImpl dashRepo = new DashboardLocalImpl();
                 dashRepo.registrarEntradaMercancia(producto.getCodigoBarras(), diferenciaStock);
@@ -141,7 +138,7 @@ public class ProductoLocalImpl implements IProductoRepository {
         // -----------------------------------------------------------------------
 
         String sql = "UPDATE productos SET nombre=?, marca=?, precio_compra=?, precio_venta=?, stock_actual=?, stock_critico=?, vehiculos_compatibles=?, numero_parte=?, sincronizado = 0 WHERE codigo_barras=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, producto.getNombre());
             pstmt.setString(2, producto.getMarca());
             pstmt.setDouble(3, producto.getPrecioCompra());
@@ -160,7 +157,7 @@ public class ProductoLocalImpl implements IProductoRepository {
 
     public boolean eliminar(String codigoBarras) {
         String sql = "DELETE FROM productos WHERE codigo_barras=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, codigoBarras);
             pstmt.executeUpdate();
             return true;
@@ -172,7 +169,7 @@ public class ProductoLocalImpl implements IProductoRepository {
     public List<Producto> buscarPorFiltro(String filtro) {
         List<Producto> lista = new ArrayList<>();
         String sql = "SELECT * FROM productos WHERE codigo_barras LIKE ? OR nombre LIKE ? OR marca LIKE ? LIMIT 15";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String parametro = "%" + filtro + "%";
             pstmt.setString(1, parametro);
             pstmt.setString(2, parametro);

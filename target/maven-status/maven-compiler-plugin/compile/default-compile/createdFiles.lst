@@ -7,7 +7,6 @@ ui\ConsultaProductoPanel$4.class
 repository\ProveedorLocalImpl.class
 ui\UsuariosPanel$2.class
 ui\CajaPanel$3.class
-database\ConexionDB.class
 ui\MenuVendedor$PanelHeaderModerno.class
 ui\CajaPanel$2.class
 ui\InventarioPanel.class
@@ -23,6 +22,7 @@ entities\Venta.class
 ui\DialogoRetiro.class
 repository\ProductoLocalImpl.class
 ui\DashboardAdmin$1.class
+ui\DialogoBienvenida.class
 repository\CajaLocalImpl.class
 entities\Proveedor.class
 ui\HistorialVentasPanel$3.class
@@ -34,6 +34,7 @@ repository\DashboardLocalImpl.class
 ui\InicioPanel.class
 ui\CortesCajaPanel$2.class
 ui\UsuariosPanel.class
+database\ConexionLocal.class
 ui\InventarioGlobalPanel.class
 ui\ProveedoresPanel$2.class
 interfaces\IVentaRepository.class
@@ -54,6 +55,7 @@ ui\InventarioGlobalPanel$1.class
 ui\InicioPanel$2.class
 ui\ConfiguracionPanel.class
 ui\MenuVendedor.class
+util\ConfiguracionGlobal.class
 ui\InventarioGlobalPanel$3.class
 ui\DashboardAdmin.class
 util\ReporteCajaGenerator.class

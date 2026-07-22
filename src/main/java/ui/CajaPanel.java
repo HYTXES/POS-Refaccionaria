@@ -36,7 +36,6 @@ public class CajaPanel extends JPanel {
         this.repo = new ProductoLocalImpl();
         this.repoVentas = new VentaLocalImpl();
 
-        // --- DETECCIÓN DE TEMA MODO OSCURO ---
         boolean isDark = UIManager.getBoolean("laf.dark");
         Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
         Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
@@ -110,7 +109,7 @@ public class CajaPanel extends JPanel {
         btnEliminarArticulo.setFocusable(false);
 
         btnCancelar = new JButton("🚮️ Cancelar Venta");
-        btnCancelar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo más legible en oscuro
+        btnCancelar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0));
         btnCancelar.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnCancelar.setFocusable(false);
 
@@ -123,7 +122,7 @@ public class CajaPanel extends JPanel {
 
         lblTotal = new JLabel("Total: $0.00");
         lblTotal.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTotal.setForeground(isDark ? new Color(100, 255, 100) : new Color(0, 100, 0)); // Verde brillante si es oscuro
+        lblTotal.setForeground(isDark ? new Color(100, 255, 100) : new Color(0, 100, 0));
 
         btnCobrar = new JButton("💸 COBRAR");
         btnCobrar.setFont(new Font("SansSerif", Font.BOLD, 24));

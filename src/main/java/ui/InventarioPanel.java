@@ -88,7 +88,7 @@ public class InventarioPanel extends JPanel {
         tablaProductos.getColumnModel().getColumn(8).setPreferredWidth(45);
         tablaProductos.getColumnModel().getColumn(9).setPreferredWidth(50);
 
-        // --- RENDERIZADOR ADAPTABLE AL TEMA (BAJO STOCK) ---
+        // --- RENDERIZADOR ADAPTABLE AL TEMA ---
         tablaProductos.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

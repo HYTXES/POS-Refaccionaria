@@ -1,14 +1,14 @@
 ========================================
-      CORTE DE CAJA - CHAYITO           
+             CORTE DE CAJA              
 ========================================
-Fecha y Hora : 21/07/2026 10:00:56
+Fecha y Hora : 22/07/2026 00:04:20
 Cajero/Admin : Abraham1
 ----------------------------------------
-Fondo Inicial        : $50.00
-Ventas del Turno     : $450.00
-Total Esperado       : $500.00
+Fondo Inicial        : $0.00
+Ventas del Turno     : $75.00
+Total Esperado       : $75.00
 ----------------------------------------
-Total Físico (Real)  : $500.00
+Total Físico (Real)  : $75.00
 Diferencia           : $0.00
 Estado               : EXCELENTE (Cuadrado)
 ========================================

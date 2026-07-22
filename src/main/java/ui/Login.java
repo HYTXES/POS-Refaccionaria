@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import sync.SincronizadorNube;
+import util.ConfiguracionGlobal;
 
 public class Login extends JFrame {
 
@@ -18,7 +19,10 @@ public class Login extends JFrame {
 
     public Login() {
         this.repoUsuarios = new UsuarioLocalImpl();
-        setTitle("Refaccionaria Chayito - Autenticación");
+        
+        // --- TÍTULO DINÁMICO ---
+        setTitle(ConfiguracionGlobal.getNombreSucursal() + " - Autenticación");
+        
         setSize(500, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -33,7 +37,7 @@ public class Login extends JFrame {
         pnlFondo.setLayout(new BorderLayout());
         setContentPane(pnlFondo);
 
-        // Arrastre de ventana
+        // para arrastrar la ventana
         pnlFondo.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 initialClick = e.getPoint();
@@ -77,7 +81,8 @@ public class Login extends JFrame {
         lblSaludo.setForeground(new Color(255, 255, 255, 170));
         lblSaludo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblMarca = new JLabel("Refaccionaria Chayito", SwingConstants.CENTER);
+        // --- NOMBRE DE SUCURSAL DINAMICO ---
+        JLabel lblMarca = new JLabel(ConfiguracionGlobal.getNombreSucursal(), SwingConstants.CENTER);
         lblMarca.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblMarca.setForeground(Color.WHITE);
         lblMarca.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -96,7 +101,7 @@ public class Login extends JFrame {
 
         JLabel lblUser = new JLabel("👤 Usuario", SwingConstants.CENTER);
         lblUser.setFont(new Font("SansSerif", Font.BOLD, 14));
-        lblUser.setForeground(txtSecundario); // Color dinámico
+        lblUser.setForeground(txtSecundario);
         lblUser.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         txtUsuario = new JTextField();
@@ -106,7 +111,7 @@ public class Login extends JFrame {
 
         JLabel lblPass = new JLabel("🔒 Contraseña", SwingConstants.CENTER);
         lblPass.setFont(new Font("SansSerif", Font.BOLD, 14));
-        lblPass.setForeground(txtSecundario); // Color dinámico
+        lblPass.setForeground(txtSecundario);
         lblPass.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         txtPassword = new JPasswordField();
@@ -142,6 +147,17 @@ public class Login extends JFrame {
         pnlCentro.add(pnlCardsContainer);
         pnlFondo.add(pnlCentro, BorderLayout.CENTER);
 
+        // --- IMPORTANTEEEE VERSION ---
+        JLabel lblVersion = new JLabel("v1.3.0", SwingConstants.CENTER);
+        lblVersion.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblVersion.setForeground(isDark ? new Color(148, 163, 184) : new Color(100, 116, 139));
+        
+        JPanel pnlSur = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pnlSur.setOpaque(false);
+        pnlSur.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        pnlSur.add(lblVersion);
+        pnlFondo.add(pnlSur, BorderLayout.SOUTH);
+
         // Eventos
         btnEntrar.addActionListener(e -> validarCredenciales());
         txtUsuario.addActionListener(e -> txtPassword.requestFocusInWindow());
@@ -161,8 +177,6 @@ public class Login extends JFrame {
 
         if (u != null) {
             Sesion.setUsuarioActual(u);
-
-            // --- INICIAR SINCRONIZADOR AL LOGEAR ---
             new SincronizadorNube().iniciar();
 
             if (u.getRol().equals("Administrador")) {
@@ -186,119 +200,78 @@ public class Login extends JFrame {
     }
 
     private class PanelTarjetaBienvenida extends JPanel {
-
-        public PanelTarjetaBienvenida() {
-            setOpaque(false);
-        }
-
+        public PanelTarjetaBienvenida() { setOpaque(false); }
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int shadowOffset = 4;
-            int margin = 4;
-            int w = getWidth() - (margin * 2);
-            int h = getHeight() - (margin * 2) - shadowOffset;
-
-            // Sombra simétrica
+            int shadowOffset = 4; int margin = 4;
+            int w = getWidth() - (margin * 2); int h = getHeight() - (margin * 2) - shadowOffset;
             g2.setColor(new Color(0, 0, 0, 15));
             g2.fillRoundRect(margin, margin + shadowOffset, w, h, 20, 20);
-
-            // Cuerpo con Degradado
             GradientPaint gp = new GradientPaint(margin, margin, Color.decode("#0F43AB"), w, h, new Color(30, 41, 59));
             g2.setPaint(gp);
             g2.fillRoundRect(margin, margin, w, h, 20, 20);
-
-            // Círculos recortados al contenedor
             g2.setClip(margin, margin, w, h);
             g2.setColor(new Color(255, 255, 255, 12));
             g2.fillOval(getWidth() - 60, -20, 100, 100);
             g2.fillOval(-30, getHeight() - 50, 80, 80);
-
             g2.dispose();
         }
     }
 
     private class PanelTarjeta extends JPanel {
-
-        public PanelTarjeta() {
-            setOpaque(false);
-        }
-
+        public PanelTarjeta() { setOpaque(false); }
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int shadowOffset = 4;
-            int margin = 4;
-            int w = getWidth() - (margin * 2);
-            int h = getHeight() - (margin * 2) - shadowOffset;
-
-            // Sombra simétrica
+            int shadowOffset = 4; int margin = 4;
+            int w = getWidth() - (margin * 2); int h = getHeight() - (margin * 2) - shadowOffset;
             g2.setColor(new Color(0, 0, 0, 15));
             g2.fillRoundRect(margin, margin + shadowOffset, w, h, 20, 20);
-
-            // Fondo Blanco o Gris Oscuro según el tema
             boolean isDark = UIManager.getBoolean("laf.dark");
             g2.setColor(isDark ? new Color(30, 41, 59) : Color.WHITE);
             g2.fillRoundRect(margin, margin, w, h, 20, 20);
-
             g2.dispose();
         }
     }
 
     private class PanelFondo extends JPanel {
-
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             int w = getWidth(), h = getHeight();
-
             boolean isDark = UIManager.getBoolean("laf.dark");
             g2.setColor(isDark ? new Color(15, 23, 42) : new Color(241, 245, 249));
             g2.fillRect(0, 0, w, h);
-
             g2.setColor(new Color(30, 41, 59));
             Path2D.Double p = new Path2D.Double();
-            p.moveTo(0, 0);
-            p.lineTo(w, 0);
-            p.lineTo(w, h * 0.45);
-            p.lineTo(0, h * 0.65);
-            p.closePath();
+            p.moveTo(0, 0); p.lineTo(w, 0); p.lineTo(w, h * 0.45); p.lineTo(0, h * 0.65); p.closePath();
             g2.fill(p);
-
             g2.setColor(Color.decode("#0F43AB"));
             Path2D.Double pLinea = new Path2D.Double();
-            pLinea.moveTo(0, h * 0.65);
-            pLinea.lineTo(w, h * 0.45);
-            pLinea.lineTo(w, (h * 0.45) + 8);
-            pLinea.lineTo(0, (h * 0.65) + 8);
-            pLinea.closePath();
+            pLinea.moveTo(0, h * 0.65); pLinea.lineTo(w, h * 0.45); pLinea.lineTo(w, (h * 0.45) + 8); pLinea.lineTo(0, (h * 0.65) + 8); pLinea.closePath();
             g2.fill(pLinea);
-
             g2.dispose();
         }
     }
 
     public static void main(String[] args) {
-        // 1. Cargamos la configuración de la base de datos a memoria
         database.ConexionNube.cargarConfiguracionLocal();
 
-        // 2. Leemos si el usuario activó el modo oscuro
         boolean modoOscuro = false;
         String sql = "SELECT valor FROM configuracion WHERE clave = 'tema_oscuro'";
-        try (java.sql.Connection conn = database.ConexionDB.conectar(); java.sql.Statement stmt = conn.createStatement(); java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+        try (java.sql.Connection conn = database.ConexionLocal.conectar(); 
+             java.sql.Statement stmt = conn.createStatement(); 
+             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 modoOscuro = rs.getString("valor").equals("true");
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) {}
 
-        // 3. Aplicamos el tema elegido antes de dibujar la ventana
         try {
             if (modoOscuro) {
                 UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatDarkLaf());
@@ -307,10 +280,29 @@ public class Login extends JFrame {
             }
             UIManager.put("TextComponent.arc", 15);
             UIManager.put("Button.arc", 15);
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) {}
 
-        // 4. Lanzamos la aplicación
-        SwingUtilities.invokeLater(() -> new Login().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            boolean esPrimeraVez = false;
+            
+            try (java.sql.Connection conn = database.ConexionLocal.conectar();
+                 java.sql.Statement stmt = conn.createStatement();
+                 java.sql.ResultSet rs = stmt.executeQuery("SELECT valor FROM configuracion WHERE clave = 'nombre_sucursal'")) {
+                if (!rs.next()) {
+                    esPrimeraVez = true;
+                }
+            } catch (Exception ignored) {}
+
+            if (esPrimeraVez) {
+                DialogoBienvenida dialogo = new DialogoBienvenida();
+                dialogo.setVisible(true);
+                
+                if (!dialogo.isConfigurado()) {
+                    System.exit(0); 
+                }
+            }
+
+            new Login().setVisible(true);
+        });
     }
 }

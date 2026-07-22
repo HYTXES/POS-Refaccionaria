@@ -34,7 +34,7 @@ public class CortesCajaPanel extends JPanel {
 
         JLabel lblTitulo = new JLabel("Historial de Cortes de Caja");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTitulo.setForeground(txtPrincipal); // Color dinámico
+        lblTitulo.setForeground(txtPrincipal);
         pnlNorte.add(lblTitulo, BorderLayout.WEST);
 
         // Barra de Búsqueda Dinámica
@@ -42,7 +42,7 @@ public class CortesCajaPanel extends JPanel {
         pnlBusqueda.setOpaque(false);
         
         JLabel lblBuscar = new JLabel("🔍 Buscar: ");
-        lblBuscar.setForeground(txtPrincipal); // Color dinámico
+        lblBuscar.setForeground(txtPrincipal);
         pnlBusqueda.add(lblBuscar);
         
         JTextField txtBuscar = new JTextField(20);
@@ -86,7 +86,7 @@ public class CortesCajaPanel extends JPanel {
 
         JButton btnEliminar = new JButton("🚮️ Eliminar Registro");
         btnEliminar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(220, 38, 38)); // Rojo más brillante en oscuro
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(220, 38, 38));
         btnEliminar.setFocusable(false);
         pnlSur.add(btnEliminar);
 

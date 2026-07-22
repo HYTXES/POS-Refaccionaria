@@ -88,8 +88,7 @@ public class ConsultaProductoPanel extends JPanel {
         tablaProductos.getColumnModel().getColumn(4).setPreferredWidth(200);
         tablaProductos.getColumnModel().getColumn(5).setPreferredWidth(80);
         tablaProductos.getColumnModel().getColumn(6).setPreferredWidth(60);
-
-        // --- RENDERIZADOR ADAPTABLE AL TEMA (STOCK AGOTADO) ---
+        
         tablaProductos.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -98,11 +97,9 @@ public class ConsultaProductoPanel extends JPanel {
                     try {
                         int stockActual = Integer.parseInt(table.getValueAt(row, 6).toString());
                         if (stockActual <= 0) {
-                            // Alerta de stock adaptada para claro u oscuro
                             c.setBackground(isDark ? new Color(60, 20, 20) : new Color(255, 230, 230));
                             c.setForeground(isDark ? new Color(255, 120, 120) : new Color(180, 0, 0));
                         } else {
-                            // Colores por defecto de la tabla según FlatLaf
                             c.setBackground(table.getBackground());
                             c.setForeground(table.getForeground());
                         }

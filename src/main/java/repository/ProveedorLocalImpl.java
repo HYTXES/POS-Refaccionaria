@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import entities.Proveedor;
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class ProveedorLocalImpl {
                 + "correo VARCHAR(100), "
                 + "sincronizado INTEGER DEFAULT 0)";
 
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             // Migración automática
             try { stmt.execute("ALTER TABLE proveedores ADD COLUMN sincronizado INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
@@ -30,7 +30,7 @@ public class ProveedorLocalImpl {
 
     public boolean guardar(Proveedor proveedor) {
         String sql = "INSERT INTO proveedores(id, nombre, contacto, telefono, correo) VALUES(?,?,?,?,?)";
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, proveedor.getId());
             pstmt.setString(2, proveedor.getNombre());
@@ -47,7 +47,7 @@ public class ProveedorLocalImpl {
     public List<Proveedor> obtenerTodos() {
         List<Proveedor> lista = new ArrayList<>();
         String sql = "SELECT * FROM proveedores";
-        try (Connection conn = ConexionDB.conectar();
+        try (Connection conn = ConexionLocal.conectar();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -65,7 +65,7 @@ public class ProveedorLocalImpl {
 
     public boolean actualizar(Proveedor proveedor) {
         String sql = "UPDATE proveedores SET nombre=?, contacto=?, telefono=?, correo=? WHERE id=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, proveedor.getNombre());
             pstmt.setString(2, proveedor.getContacto());
             pstmt.setString(3, proveedor.getTelefono());
@@ -80,7 +80,7 @@ public class ProveedorLocalImpl {
 
     public boolean eliminar(String id) {
         String sql = "DELETE FROM proveedores WHERE id=?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, id);
             pstmt.executeUpdate();
             return true;

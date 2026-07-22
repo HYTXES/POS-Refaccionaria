@@ -27,9 +27,9 @@ public class UsuariosPanel extends JPanel {
         setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel lblTitulo = new JLabel("Gestión de Usuarios del Sistema");
+        JLabel lblTitulo = new JLabel("Gestion de Usuarios del Sistema");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTitulo.setForeground(txtPrincipal); // Color dinámico
+        lblTitulo.setForeground(txtPrincipal);
         add(lblTitulo, BorderLayout.NORTH);
 
         modelo = new DefaultTableModel(new String[]{"ID", "Usuario", "Rol de Acceso"}, 0) {
@@ -55,7 +55,7 @@ public class UsuariosPanel extends JPanel {
         JButton btnNuevo = new JButton("➕ Agregar Usuario");
         JButton btnPassword = new JButton("🔑 Cambiar Contraseña");
         JButton btnEliminar = new JButton("🚮 Eliminar Usuario");
-        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo brillante en oscuro
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0));
 
         pnlAcciones.add(btnNuevo);
         pnlAcciones.add(btnPassword);
@@ -135,7 +135,7 @@ public class UsuariosPanel extends JPanel {
 
             Usuario u = listaUsuarios.get(fila);
 
-            // No permitir eliminar la sesión activa actual
+            // No se va a permitir eliminar la sesión activa actual
             if (Sesion.getUsuarioActual() != null && u.getUsername().equals(Sesion.getUsuarioActual().getUsername())) {
                 JOptionPane.showMessageDialog(this, 
                     "No puedes eliminar tu propio usuario mientras tienes la sesión activa.", 

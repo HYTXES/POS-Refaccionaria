@@ -36,7 +36,6 @@ public class FormProducto extends JDialog {
         gbc.insets = new Insets(8, 10, 8, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Arreglo para crear etiquetas con color dinámico de forma limpia
         String[] labelsText = {
             "Código de Barras:", "Nombre:", "Marca:", "Proveedor:", 
             "P. Compra ($):", "P. Venta ($):", "Stock Inicial:", 
@@ -52,7 +51,7 @@ public class FormProducto extends JDialog {
             txtPrecioVenta = new JTextField(7),
             txtStock = new JTextField(5),
             txtStockCritico = new JTextField(5),
-            null // La descripción va abajo con JScrollPane
+            null
         };
 
         cargarProveedores();
@@ -61,7 +60,7 @@ public class FormProducto extends JDialog {
             gbc.gridx = 0; gbc.gridy = i;
             JLabel lbl = new JLabel(labelsText[i]);
             lbl.setFont(new Font("SansSerif", Font.BOLD, 13));
-            lbl.setForeground(txtPrincipal); // Color dinámico
+            lbl.setForeground(txtPrincipal);
             pnlCampos.add(lbl, gbc);
 
             gbc.gridx = 1;

@@ -14,7 +14,6 @@ public class MenuVendedor extends JFrame {
     private Point initialClick;
 
     public MenuVendedor() {
-        // --- SEGURIDAD ---
         Sesion.auditarAcceso(this, "CUALQUIERA");
         this.cajaRepo = new CajaLocalImpl();
         
@@ -52,7 +51,7 @@ public class MenuVendedor extends JFrame {
         JLabel lblTitulo = new JLabel("Terminal de Venta Rápida");
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
-        JLabel lblSubtitulo = new JLabel("👤 Vendedor en turno: " + (Sesion.getUsuarioActual() != null ? Sesion.getUsuarioActual().getUsername() : "Cajero"));
+        JLabel lblSubtitulo = new JLabel("👤 Usuario: " + (Sesion.getUsuarioActual() != null ? Sesion.getUsuarioActual().getUsername() : "Cajero"));
         lblSubtitulo.setForeground(new Color(148, 163, 184));
         lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 14));
         pnlTitulos.add(lblTitulo); 

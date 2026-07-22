@@ -1,6 +1,6 @@
 package repository;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,20 +28,17 @@ public class DashboardLocalImpl {
                 + "fecha DATETIME DEFAULT CURRENT_TIMESTAMP, "
                 + "sincronizado INTEGER DEFAULT 0)";
 
-        try (Connection conn = ConexionDB.conectar(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = ConexionLocal.conectar(); Statement stmt = conn.createStatement()) {
             stmt.execute(sqlRetiros);
             stmt.execute(sqlEntradas);
-            
-            // Migración automática
             try { stmt.execute("ALTER TABLE retiros_caja ADD COLUMN sincronizado INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE entradas_inventario ADD COLUMN sincronizado INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
         } catch (SQLException ignored) {}
     }
 
-    // --- MÉTODOS PARA LOS RETIROS ---
     public boolean registrarRetiro(String vendedor, double monto, String motivo) {
         String sql = "INSERT INTO retiros_caja (id, vendedor, monto, motivo) VALUES (?, ?, ?, ?)";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, UUID.randomUUID().toString());
             pst.setString(2, vendedor);
             pst.setDouble(3, monto);
@@ -54,7 +51,7 @@ public class DashboardLocalImpl {
 
     public double calcularRetirosTurnoActual(String fechaApertura) {
         String sql = "SELECT SUM(monto) as total_retiros FROM retiros_caja WHERE fecha >= ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, fechaApertura);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getDouble("total_retiros");
@@ -63,13 +60,11 @@ public class DashboardLocalImpl {
         return 0.0;
     }
 
-    // --- NUEVO: MÉTODO PARA REGISTRAR ENTRADAS DE MERCANCÍA ---
-    // Debes llamar a este método cada vez que le sumes stock a un producto desde tu catálogo
     public boolean registrarEntradaMercancia(String idProducto, int cantidadAgregada) {
-        if (cantidadAgregada <= 0) return false; // Solo registramos entradas positivas
+        if (cantidadAgregada <= 0) return false;
         
         String sql = "INSERT INTO entradas_inventario (id, id_producto, cantidad) VALUES (?, ?, ?)";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, UUID.randomUUID().toString());
             pst.setString(2, idProducto);
             pst.setInt(3, cantidadAgregada);
@@ -85,7 +80,7 @@ public class DashboardLocalImpl {
 
     public double getVentasTotalesHoy() {
         String sql = "SELECT SUM(total) as total FROM ventas WHERE fecha LIKE ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, getFechaHoyParaBusqueda());
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getDouble("total");
@@ -96,7 +91,7 @@ public class DashboardLocalImpl {
 
     public double getRetirosTotalesHoy() {
         String sql = "SELECT SUM(monto) as total FROM retiros_caja WHERE fecha LIKE ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, getFechaHoyParaBusqueda());
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getDouble("total");
@@ -107,7 +102,7 @@ public class DashboardLocalImpl {
 
     public int getCantidadVentasHoy() {
         String sql = "SELECT COUNT(id) as total FROM ventas WHERE fecha LIKE ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, getFechaHoyParaBusqueda());
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
@@ -118,7 +113,7 @@ public class DashboardLocalImpl {
 
     public int getArticulosVendidosHoy() {
         String sql = "SELECT SUM(vd.cantidad) as total FROM venta_detalles vd JOIN ventas v ON vd.venta_id = v.id WHERE v.fecha LIKE ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, getFechaHoyParaBusqueda());
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
@@ -131,7 +126,7 @@ public class DashboardLocalImpl {
 
     public int getEntradasInventarioHoy() {
         String sql = "SELECT SUM(cantidad) as total FROM entradas_inventario WHERE fecha LIKE ?";
-        try (Connection conn = ConexionDB.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionLocal.conectar(); PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, getFechaHoyParaBusqueda());
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
@@ -143,7 +138,7 @@ public class DashboardLocalImpl {
     public int getProductosBajoStock() {
         String sql = "SELECT COUNT(codigo_barras) as total FROM productos WHERE stock_actual <= stock_critico AND stock_critico > 0";
         
-        try (Connection conn = ConexionDB.conectar(); 
+        try (Connection conn = ConexionLocal.conectar(); 
              Statement stmt = conn.createStatement(); 
              ResultSet rs = stmt.executeQuery(sql)) {
              

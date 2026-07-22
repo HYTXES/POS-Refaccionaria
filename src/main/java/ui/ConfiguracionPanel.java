@@ -1,6 +1,6 @@
 package ui;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import database.ConexionNube;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,7 +27,7 @@ public class ConfiguracionPanel extends JPanel {
     public ConfiguracionPanel() {
         camposConfiguracion = new HashMap<>();
         
-        // 1. DETECTAR EL TEMA ACTUAL (Magia de FlatLaf)
+        // 1. DETECTAR EL TEMA ACTUAL
         boolean isDark = UIManager.getBoolean("laf.dark");
 
         // 2. CONFIGURAR LA PALETA SEGÚN EL TEMA
@@ -66,7 +66,7 @@ public class ConfiguracionPanel extends JPanel {
         pnlContenido.setBorder(new EmptyBorder(20, 30, 20, 30));
 
         // Tarjeta 1: Nube y Red
-        JPanel pnlNube = crearTarjeta("☁️ Conexión a la Nube (Base de datos global)");
+        JPanel pnlNube = crearTarjeta("Conexión a la Nube (Base de datos global)");
         agregarCampo(pnlNube, "Nombre de esta Sucursal:", "nombre_sucursal");
         agregarCampo(pnlNube, "Dirección IP del Servidor:", "nube_ip");
         agregarCampo(pnlNube, "Puerto (Ej. 3306):", "nube_puerto");
@@ -76,16 +76,18 @@ public class ConfiguracionPanel extends JPanel {
         pnlContenido.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // Tarjeta 2: Datos de Empresa (Para el Ticket)
-        JPanel pnlEmpresa = crearTarjeta("🧾 Datos del Ticket de Venta");
+        JPanel pnlEmpresa = crearTarjeta("Datos del Ticket de Venta");
+        agregarCampo(pnlEmpresa, "Nombre del Negocio (Ticket):", "empresa_nombre");
         agregarCampo(pnlEmpresa, "RFC de la Empresa:", "empresa_rfc");
         agregarCampo(pnlEmpresa, "Dirección del Local:", "empresa_direccion");
         agregarCampo(pnlEmpresa, "Teléfono / WhatsApp:", "empresa_telefono");
-        agregarCampo(pnlEmpresa, "Mensaje de Despedida:", "ticket_mensaje");
+        agregarCampo(pnlEmpresa, "Lema del Ticket (Cabecera):", "ticket_cabecera");
+        agregarCampo(pnlEmpresa, "Mensaje de Despedida (Pie):", "ticket_pie");
         pnlContenido.add(pnlEmpresa);
         pnlContenido.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // Tarjeta 3: Preferencias Operativas
-        JPanel pnlPreferencias = crearTarjeta("🎛️ Preferencias del Sistema");
+        JPanel pnlPreferencias = crearTarjeta("Preferencias del Sistema");
         agregarCampo(pnlPreferencias, "Fondo de Caja Sugerido ($):", "pref_fondo_caja");
         agregarCampo(pnlPreferencias, "Alerta de Stock Mínimo (Uds):", "pref_stock_min");
         agregarCampo(pnlPreferencias, "Impuesto IVA Predeterminado (%):", "pref_iva");
@@ -93,7 +95,7 @@ public class ConfiguracionPanel extends JPanel {
         // Selector de Tema Visual
         JPanel pnlTema = new JPanel(new BorderLayout(10, 0));
         pnlTema.setOpaque(false);
-        JLabel lblTema = new JLabel("Apariencia del Sistema:");
+        JLabel lblTema = new JLabel("Apariencia:");
         lblTema.setFont(new Font("SansSerif", Font.BOLD, 14));
         lblTema.setForeground(txtSecundario); // Color dinámico
         
@@ -119,13 +121,13 @@ public class ConfiguracionPanel extends JPanel {
             new EmptyBorder(15, 30, 15, 30)
         ));
         
-        JButton btnGuardar = new JButton("💾 Guardar Toda la Configuración");
+        JButton btnGuardar = new JButton("Guardar");
         btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 15));
         btnGuardar.setBackground(Color.decode("#0F43AB"));
         btnGuardar.setForeground(Color.WHITE);
         btnGuardar.setFocusPainted(false);
         btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnGuardar.setPreferredSize(new Dimension(300, 45));
+        btnGuardar.setPreferredSize(new Dimension(100, 45));
         
         pnlFooter.add(btnGuardar);
 
@@ -140,7 +142,7 @@ public class ConfiguracionPanel extends JPanel {
     private JPanel crearTarjeta(String titulo) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0, 2, 20, 15)); 
-        panel.setBackground(bgTarjetas); // Usamos color dinámico en vez de Color.WHITE
+        panel.setBackground(bgTarjetas); 
         panel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(colorBordes, 1),
             BorderFactory.createTitledBorder(
@@ -148,7 +150,7 @@ public class ConfiguracionPanel extends JPanel {
                 titulo, 
                 0, 0, 
                 new Font("SansSerif", Font.BOLD, 16), 
-                Color.decode("#3B82F6") // Un azul más brillante para que se lea en oscuro
+                Color.decode("#3B82F6") 
             )
         ));
         JPanel wrapper = new JPanel(new BorderLayout());
@@ -164,7 +166,7 @@ public class ConfiguracionPanel extends JPanel {
         
         JLabel lbl = new JLabel(etiqueta);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 13));
-        lbl.setForeground(txtSecundario); // Color dinámico
+        lbl.setForeground(txtSecundario); 
         
         JTextField txt = new JTextField();
         txt.setFont(new Font("SansSerif", Font.PLAIN, 15));
@@ -172,7 +174,6 @@ public class ConfiguracionPanel extends JPanel {
         pnlCampo.add(lbl, BorderLayout.NORTH);
         pnlCampo.add(txt, BorderLayout.CENTER);
         
-        // Obtenemos el JPanel original (que está dentro del wrapper)
         ((JPanel) tarjeta.getComponent(0)).add(pnlCampo);
         
         camposConfiguracion.put(claveBD, txt);
@@ -180,7 +181,7 @@ public class ConfiguracionPanel extends JPanel {
 
     private void cargarDatosActuales() {
         String sql = "SELECT clave, valor FROM configuracion";
-        try (Connection conn = ConexionDB.conectar(); 
+        try (Connection conn = ConexionLocal.conectar(); 
              Statement stmt = conn.createStatement(); 
              ResultSet rs = stmt.executeQuery(sql)) {
              
@@ -203,7 +204,7 @@ public class ConfiguracionPanel extends JPanel {
         int confirm = JOptionPane.showConfirmDialog(this, "¿Guardar todos los cambios de configuración?", "Confirmar Guardado", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) return;
 
-        try (Connection conn = ConexionDB.conectar()) {
+        try (Connection conn = ConexionLocal.conectar()) {
             conn.setAutoCommit(false); 
             for (Map.Entry<String, JTextField> entry : camposConfiguracion.entrySet()) {
                 guardarClaveValor(conn, entry.getKey(), entry.getValue().getText().trim());

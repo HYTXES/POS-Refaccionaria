@@ -1,6 +1,6 @@
 package sync;
 
-import database.ConexionDB;
+import database.ConexionLocal;
 import database.ConexionNube;
 import java.sql.*;
 import java.util.concurrent.Executors;
@@ -16,21 +16,20 @@ public class SincronizadorNube {
         if (scheduler == null || scheduler.isShutdown()) {
             scheduler = Executors.newSingleThreadScheduledExecutor();
             scheduler.scheduleAtFixedRate(this::sincronizarDatos, 0, INTERVALO_MINUTOS, TimeUnit.MINUTES);
-            System.out.println("⚙️ Motor de Sincronización INICIADO (Modo Inventario Global).");
+            System.out.println("Motor de Sincronización INICIADO (Modo Inventario Global).");
         }
     }
 
     public void detener() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
-            System.out.println("🛑 Motor de Sincronización DETENIDO.");
+            System.out.println("Motor de Sincronización DETENIDO.");
         }
     }
 
     private void sincronizarDatos() {
-        // Verificar si hay internet y si XAMPP/MariaDB responde
         if (!ConexionNube.probarConexion()) {
-            System.out.println("☁️ Nube inaccesible. Reintentando en " + INTERVALO_MINUTOS + " min...");
+            System.out.println("Nube inaccesible. Reintentando en " + INTERVALO_MINUTOS + " min...");
             return; 
         }
 
@@ -46,7 +45,7 @@ public class SincronizadorNube {
                              + "ON DUPLICATE KEY UPDATE "
                              + "nombre = VALUES(nombre), stock_actual = VALUES(stock_actual)";
 
-        try (Connection connLocal = ConexionDB.conectar();
+        try (Connection connLocal = ConexionLocal.conectar();
              Statement stmtLocal = connLocal.createStatement();
              ResultSet rsPendientes = stmtLocal.executeQuery(sqlSelectLocal)) {
 
@@ -74,16 +73,16 @@ public class SincronizadorNube {
                         registrosSubidos++;
 
                     } catch (SQLException ex) {
-                        System.out.println("⚠️ Error al subir el producto " + codigoBarras + ": " + ex.getMessage());
+                        System.out.println("Error al subir el producto " + codigoBarras + ": " + ex.getMessage());
                     }
                 }
 
                 if (registrosSubidos > 0) {
-                    System.out.println("📦 " + registrosSubidos + " productos sincronizados en la nube como: " + ConexionNube.SUCURSAL_ACTUAL);
+                    System.out.println(registrosSubidos + " productos sincronizados en la nube como: " + ConexionNube.SUCURSAL_ACTUAL);
                 }
             }
         } catch (SQLException e) {
-            System.out.println("❌ Error leyendo SQLite local (Productos): " + e.getMessage());
+            System.out.println("Error leyendo SQLite local (Productos): " + e.getMessage());
         }
     }
 }

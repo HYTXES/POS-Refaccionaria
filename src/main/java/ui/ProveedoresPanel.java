@@ -52,7 +52,7 @@ public class ProveedoresPanel extends JPanel {
         JButton btnNuevo = new JButton("➕ Nuevo Proveedor");
         JButton btnEditar = new JButton("📝 Modificar");
         JButton btnEliminar = new JButton("🚮 Dar de baja");
-        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo brillante en oscuro
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0));
 
         pnlAcciones.add(btnNuevo);
         pnlAcciones.add(btnEditar);

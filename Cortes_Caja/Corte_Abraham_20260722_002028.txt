@@ -1,0 +1,14 @@
+========================================
+             CORTE DE CAJA              
+========================================
+Fecha y Hora : 22/07/2026 00:20:28
+Cajero/Admin : Abraham
+----------------------------------------
+Fondo Inicial        : $500.00
+Ventas del Turno     : $0.00
+Total Esperado       : $500.00
+----------------------------------------
+Total Físico (Real)  : $500.00
+Diferencia           : $0.00
+Estado               : EXCELENTE (Cuadrado)
+========================================
