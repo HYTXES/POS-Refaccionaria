@@ -17,12 +17,18 @@ public class ProveedoresPanel extends JPanel {
     public ProveedoresPanel() {
         this.repo = new ProveedorLocalImpl();
         
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel lblTitulo = new JLabel("Directorio de Proveedores");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
+        lblTitulo.setForeground(txtPrincipal); // Color dinámico
         add(lblTitulo, BorderLayout.NORTH);
 
         modelo = new DefaultTableModel(new String[]{"ID", "Nombre", "Contacto", "Teléfono", "Correo"}, 0) {
@@ -46,7 +52,7 @@ public class ProveedoresPanel extends JPanel {
         JButton btnNuevo = new JButton("➕ Nuevo Proveedor");
         JButton btnEditar = new JButton("📝 Modificar");
         JButton btnEliminar = new JButton("🚮 Dar de baja");
-        btnEliminar.setForeground(new Color(200, 0, 0));
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo brillante en oscuro
 
         pnlAcciones.add(btnNuevo);
         pnlAcciones.add(btnEditar);

@@ -14,7 +14,13 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class HistorialVentasPanel extends JPanel {
@@ -29,28 +35,37 @@ public class HistorialVentasPanel extends JPanel {
     public HistorialVentasPanel() {
         this.repo = new VentaLocalImpl();
         
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        java.awt.Color bgFondo = isDark ? new java.awt.Color(15, 23, 42) : java.awt.Color.WHITE;
+        java.awt.Color txtPrincipal = isDark ? java.awt.Color.WHITE : java.awt.Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(java.awt.Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JPanel pnlHerramientas = new JPanel(new GridLayout(2, 1, 5, 5));
         pnlHerramientas.setOpaque(false);
 
         JLabel lblTitulo = new JLabel("Historial de Ventas (Corte de Caja)");
-        lblTitulo.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 24));
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitulo.setForeground(txtPrincipal);
         
         JPanel pnlFiltros = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlFiltros.setOpaque(false);
         
-        pnlFiltros.add(new JLabel("🔍 Filtrar: "));
+        JLabel lblFiltrar = new JLabel("🔍 Filtrar: ");
+        lblFiltrar.setForeground(txtPrincipal);
+        pnlFiltros.add(lblFiltrar);
+
         txtBuscar = new JTextField(25);
-        txtBuscar.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 16));
+        txtBuscar.setFont(new Font("SansSerif", Font.PLAIN, 16));
         pnlFiltros.add(txtBuscar);
 
         JButton btnExportarExcel = new JButton("📊 Generar Reporte Detallado");
         btnExportarExcel.setBackground(new java.awt.Color(33, 115, 70));
         btnExportarExcel.setForeground(java.awt.Color.WHITE);
-        btnExportarExcel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
+        btnExportarExcel.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnExportarExcel.setFocusPainted(false);
         pnlFiltros.add(Box.createHorizontalStrut(20));
         pnlFiltros.add(btnExportarExcel);
@@ -68,15 +83,16 @@ public class HistorialVentasPanel extends JPanel {
         sorter = new TableRowSorter<>(modelo);
         tabla.setRowSorter(sorter);
         tabla.setRowHeight(30);
-        tabla.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 16));
-        tabla.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
+        tabla.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        tabla.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
 
         add(new JScrollPane(tabla), BorderLayout.CENTER);
 
         JPanel pnlAcciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlAcciones.setOpaque(false);
         JButton btnEliminar = new JButton("🚮️ Eliminar Registro");
-        btnEliminar.setForeground(new java.awt.Color(200, 0, 0));
+        btnEliminar.setForeground(isDark ? new java.awt.Color(255, 100, 100) : new java.awt.Color(200, 0, 0));
+        btnEliminar.setFocusable(false);
         pnlAcciones.add(btnEliminar);
         add(pnlAcciones, BorderLayout.SOUTH);
 
@@ -130,7 +146,6 @@ public class HistorialVentasPanel extends JPanel {
         if (!archivo.getName().endsWith(".xlsx")) archivo = new File(archivo.getAbsolutePath() + ".xlsx");
 
         try (Workbook workbook = new XSSFWorkbook()) {
-            // --- ESTILOS ---
             CellStyle headerStyle = workbook.createCellStyle();
             org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
             headerFont.setBold(true);
@@ -138,7 +153,6 @@ public class HistorialVentasPanel extends JPanel {
             headerStyle.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // --- HOJA 1: RESUMEN DE VENTAS ---
             Sheet sheet1 = workbook.createSheet("Resumen de Ventas");
             Row rowHeader1 = sheet1.createRow(0);
             String[] col1 = {"Folio", "Fecha", "Vendedor", "Total"};
@@ -155,7 +169,6 @@ public class HistorialVentasPanel extends JPanel {
             }
             for (int i = 0; i < 4; i++) sheet1.autoSizeColumn(i);
 
-            // --- HOJA 2: DESGLOSE DETALLADO ---
             Sheet sheet2 = workbook.createSheet("Detalle por Producto");
             Row rowHeader2 = sheet2.createRow(0);
             String[] col2 = {"Folio", "Fecha", "Vendedor", "Código", "Producto", "Cant.", "Subtotal"};

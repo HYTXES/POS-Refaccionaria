@@ -19,8 +19,13 @@ public class CortesCajaPanel extends JPanel {
     public CortesCajaPanel() {
         this.repoCaja = new CajaLocalImpl();
         
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // --- ZONA SUPERIOR: Título y Buscador ---
@@ -29,12 +34,16 @@ public class CortesCajaPanel extends JPanel {
 
         JLabel lblTitulo = new JLabel("Historial de Cortes de Caja");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
+        lblTitulo.setForeground(txtPrincipal); // Color dinámico
         pnlNorte.add(lblTitulo, BorderLayout.WEST);
 
         // Barra de Búsqueda Dinámica
         JPanel pnlBusqueda = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlBusqueda.setOpaque(false);
-        pnlBusqueda.add(new JLabel("🔍 Buscar: "));
+        
+        JLabel lblBuscar = new JLabel("🔍 Buscar: ");
+        lblBuscar.setForeground(txtPrincipal); // Color dinámico
+        pnlBusqueda.add(lblBuscar);
         
         JTextField txtBuscar = new JTextField(20);
         txtBuscar.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -77,7 +86,7 @@ public class CortesCajaPanel extends JPanel {
 
         JButton btnEliminar = new JButton("🚮️ Eliminar Registro");
         btnEliminar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnEliminar.setForeground(new Color(220, 38, 38)); // Rojo alerta
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(220, 38, 38)); // Rojo más brillante en oscuro
         btnEliminar.setFocusable(false);
         pnlSur.add(btnEliminar);
 
@@ -96,7 +105,6 @@ public class CortesCajaPanel extends JPanel {
                 if (texto.trim().length() == 0) {
                     sorter.setRowFilter(null);
                 } else {
-                    // El (?i) lo hace insensible a mayúsculas/minúsculas
                     sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto));
                 }
             }
@@ -136,7 +144,7 @@ public class CortesCajaPanel extends JPanel {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
                 cargarDatos();
-                txtBuscar.setText(""); // Limpiar el buscador al entrar
+                txtBuscar.setText(""); 
             }
         });
 

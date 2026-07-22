@@ -79,9 +79,7 @@ public class DashboardLocalImpl {
         }
     }
 
-    // --- MÉTODOS PARA LOS KPIS DEL DASHBOARD (HOY) ---
     private String getFechaHoyParaBusqueda() {
-        // Retornamos el inicio para hacer un LIKE en SQL (ej. "2026-07-08%")
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "%";
     }
 

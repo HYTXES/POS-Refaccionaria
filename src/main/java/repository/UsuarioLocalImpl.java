@@ -82,7 +82,7 @@ public class UsuarioLocalImpl {
         
         String sql = "UPDATE usuarios SET password=? WHERE id=?";
         try (Connection conn = ConexionDB.conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, passHasheada); // Actualiza con el hash
+            pstmt.setString(1, passHasheada); 
             pstmt.setString(2, id);
             pstmt.executeUpdate();
             return true;

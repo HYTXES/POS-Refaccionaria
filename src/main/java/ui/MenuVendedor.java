@@ -250,14 +250,18 @@ public class MenuVendedor extends JFrame {
             int w = getWidth();
             int h = getHeight();
 
-            g2d.setColor(new Color(30, 41, 59));
+            // --- DETECCIÓN DINÁMICA DE TEMA PARA EL HEADER ---
+            boolean isDark = UIManager.getBoolean("laf.dark");
+            Color colorFondoHeader = isDark ? new Color(15, 23, 42) : new Color(30, 41, 59);
+
+            g2d.setColor(colorFondoHeader);
             g2d.fillRect(0, 0, w, h);
 
             g2d.setColor(Color.decode("#0F43AB"));
             Path2D.Double poly = new Path2D.Double();
             poly.moveTo(w - 400, 0); 
-            poly.lineTo(w, 0);       
-            poly.lineTo(w, h);       
+            poly.lineTo(w, 0);        
+            poly.lineTo(w, h);        
             poly.lineTo(w - 450, h); 
             poly.closePath();
             g2d.fill(poly);

@@ -18,13 +18,18 @@ public class UsuariosPanel extends JPanel {
     public UsuariosPanel() {
         this.repo = new UsuarioLocalImpl();
         
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel lblTitulo = new JLabel("Gestión de Usuarios del Sistema");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTitulo.setForeground(new Color(30, 41, 59));
+        lblTitulo.setForeground(txtPrincipal); // Color dinámico
         add(lblTitulo, BorderLayout.NORTH);
 
         modelo = new DefaultTableModel(new String[]{"ID", "Usuario", "Rol de Acceso"}, 0) {
@@ -50,7 +55,7 @@ public class UsuariosPanel extends JPanel {
         JButton btnNuevo = new JButton("➕ Agregar Usuario");
         JButton btnPassword = new JButton("🔑 Cambiar Contraseña");
         JButton btnEliminar = new JButton("🚮 Eliminar Usuario");
-        btnEliminar.setForeground(new Color(200, 0, 0));
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo brillante en oscuro
 
         pnlAcciones.add(btnNuevo);
         pnlAcciones.add(btnPassword);
@@ -142,8 +147,8 @@ public class UsuariosPanel extends JPanel {
             // Garantizar que siempre exista al menos un Administrador
             if (u.getRol().equals("Administrador")) {
                 long totalAdmins = listaUsuarios.stream()
-                                                .filter(usr -> usr.getRol().equals("Administrador"))
-                                                .count();
+                                                    .filter(usr -> usr.getRol().equals("Administrador"))
+                                                    .count();
                 if (totalAdmins <= 1) {
                     JOptionPane.showMessageDialog(this, 
                         "No puedes eliminar a este usuario.\nDebe existir al menos un Administrador en el sistema.", 

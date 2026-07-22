@@ -1,6 +1,7 @@
 package ui;
 
 import entities.Sesion;
+import repository.CajaLocalImpl;
 import repository.DashboardLocalImpl;
 import javax.swing.*;
 import java.awt.*;
@@ -13,15 +14,29 @@ public class DialogoRetiro extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgTarjetas = isDark ? new Color(30, 41, 59) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
+        getContentPane().setBackground(bgTarjetas);
+
         JPanel pnlCentro = new JPanel(new GridLayout(4, 1, 10, 10));
+        pnlCentro.setOpaque(false);
         pnlCentro.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        pnlCentro.add(new JLabel("Monto a retirar ($):"));
+        JLabel lblMonto = new JLabel("Monto a retirar ($):");
+        lblMonto.setForeground(txtPrincipal);
+        pnlCentro.add(lblMonto);
+
         JTextField txtMonto = new JTextField();
         txtMonto.setFont(new Font("SansSerif", Font.BOLD, 18));
         pnlCentro.add(txtMonto);
 
-        pnlCentro.add(new JLabel("Motivo del retiro:"));
+        JLabel lblMotivo = new JLabel("Motivo del retiro:");
+        lblMotivo.setForeground(txtPrincipal);
+        pnlCentro.add(lblMotivo);
+
         JTextField txtMotivo = new JTextField();
         pnlCentro.add(txtMotivo);
 
@@ -43,8 +58,27 @@ public class DialogoRetiro extends JDialog {
                     return;
                 }
 
+                CajaLocalImpl cajaRepo = new CajaLocalImpl();
+                DashboardLocalImpl dashRepo = new DashboardLocalImpl();
+
+                double fondo = cajaRepo.obtenerFondoInicial();
+                double ventas = cajaRepo.calcularVentasTurno();
+                String fechaApertura = cajaRepo.obtenerFechaAperturaActual();
+                double retirosPrevios = dashRepo.calcularRetirosTurnoActual(fechaApertura);
+
+                double efectivoDisponible = (fondo + ventas) - retirosPrevios;
+
+                if (monto > efectivoDisponible) {
+                    JOptionPane.showMessageDialog(this, 
+                        String.format("Operación denegada: Fondos insuficientes en caja.\nEfectivo físico disponible máximo: $%.2f", efectivoDisponible), 
+                        "Error de Retiro", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 String vendedor = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Usuario";
-                if (new DashboardLocalImpl().registrarRetiro(vendedor, monto, motivo)) {
+                
+                if (dashRepo.registrarRetiro(vendedor, monto, motivo)) {
                     JOptionPane.showMessageDialog(this, "Retiro registrado. Guarda el comprobante físico en la caja.");
                     dispose();
                 } else {

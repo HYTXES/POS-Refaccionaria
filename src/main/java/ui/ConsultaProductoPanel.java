@@ -27,8 +27,13 @@ public class ConsultaProductoPanel extends JPanel {
         this.repoProd = new ProductoLocalImpl();
         this.repoProv = new ProveedorLocalImpl();
 
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JPanel pnlHerramientas = new JPanel(new GridLayout(2, 1, 5, 5));
@@ -36,18 +41,26 @@ public class ConsultaProductoPanel extends JPanel {
 
         JPanel pnlBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlBusqueda.setOpaque(false);
-        pnlBusqueda.add(new JLabel("🔍 Buscar: "));
+        
+        JLabel lblBuscar = new JLabel("🔍 Buscar: ");
+        lblBuscar.setForeground(txtPrincipal);
+        pnlBusqueda.add(lblBuscar);
+        
         txtBuscar = new JTextField(25);
         txtBuscar.setFont(new Font("SansSerif", Font.PLAIN, 16));
         pnlBusqueda.add(txtBuscar);
 
-        pnlBusqueda.add(new JLabel("  🏢 Filtrar Proveedor: "));
+        JLabel lblFiltro = new JLabel("  🏢 Filtrar Proveedor: ");
+        lblFiltro.setForeground(txtPrincipal);
+        pnlBusqueda.add(lblFiltro);
+        
         comboProveedores = new JComboBox<>();
         comboProveedores.setFont(new Font("SansSerif", Font.PLAIN, 14));
         pnlBusqueda.add(comboProveedores);
 
         JLabel lblTitulo = new JLabel("Catálogo de Productos", JLabel.LEFT);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 22));
+        lblTitulo.setForeground(txtPrincipal);
         
         pnlHerramientas.add(lblTitulo);
         pnlHerramientas.add(pnlBusqueda);
@@ -76,6 +89,7 @@ public class ConsultaProductoPanel extends JPanel {
         tablaProductos.getColumnModel().getColumn(5).setPreferredWidth(80);
         tablaProductos.getColumnModel().getColumn(6).setPreferredWidth(60);
 
+        // --- RENDERIZADOR ADAPTABLE AL TEMA (STOCK AGOTADO) ---
         tablaProductos.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -84,11 +98,13 @@ public class ConsultaProductoPanel extends JPanel {
                     try {
                         int stockActual = Integer.parseInt(table.getValueAt(row, 6).toString());
                         if (stockActual <= 0) {
-                            c.setBackground(new Color(255, 230, 230));
-                            c.setForeground(new Color(180, 0, 0));
+                            // Alerta de stock adaptada para claro u oscuro
+                            c.setBackground(isDark ? new Color(60, 20, 20) : new Color(255, 230, 230));
+                            c.setForeground(isDark ? new Color(255, 120, 120) : new Color(180, 0, 0));
                         } else {
-                            c.setBackground(Color.WHITE);
-                            c.setForeground(Color.BLACK);
+                            // Colores por defecto de la tabla según FlatLaf
+                            c.setBackground(table.getBackground());
+                            c.setForeground(table.getForeground());
                         }
                     } catch (Exception ignored) {}
                 }

@@ -17,7 +17,6 @@ ui\Login$PanelTarjeta.class
 ui\ProveedoresPanel$1.class
 ui\InventarioPanel$4.class
 ui\Login$PanelTarjetaBienvenida.class
-ui\ConfigPanel.class
 ui\MenuVendedor$2.class
 ui\ProveedoresPanel.class
 entities\Venta.class
@@ -42,7 +41,6 @@ ui\ConsultaProductoPanel$2.class
 ui\InicioPanel$1.class
 ui\CajaPanel.class
 ui\FormProducto.class
-ui\InventarioPanel$5.class
 database\ConexionNube.class
 ui\UsuariosPanel$1.class
 ui\HistorialVentasPanel.class
@@ -54,6 +52,7 @@ ui\ConsultaProductoPanel$3.class
 ui\CortesCajaPanel$3.class
 ui\InventarioGlobalPanel$1.class
 ui\InicioPanel$2.class
+ui\ConfiguracionPanel.class
 ui\MenuVendedor.class
 ui\InventarioGlobalPanel$3.class
 ui\DashboardAdmin.class

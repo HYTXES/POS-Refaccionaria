@@ -16,7 +16,6 @@ public class DashboardAdmin extends JFrame {
 
     public DashboardAdmin() {
         // --- 1. CONFIGURACIÓN VISUAL (DEBE IR ANTES DE TODO) ---
-        // Forzamos el azul oscuro en todos los estados del tema FlatLaf
         UIManager.put("TabbedPane.underlineColor", Color.decode("#0F43AB"));
         UIManager.put("TabbedPane.selectedUnderlineColor", Color.decode("#0F43AB"));
         UIManager.put("TabbedPane.focusColor", Color.decode("#0F43AB"));
@@ -33,15 +32,12 @@ public class DashboardAdmin extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- OCULTAR LA BARRA DE WINDOWS ---
         setUndecorated(true);
 
-        // --- CABECERA MODERNA CON DIAGONAL ---
         PanelHeaderModerno pnlHeader = new PanelHeaderModerno();
         pnlHeader.setLayout(new BorderLayout());
         pnlHeader.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
 
-        // --- FÍSICA DE ARRASTRE EN LA CABECERA ---
         pnlHeader.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 initialClick = e.getPoint();
@@ -57,7 +53,6 @@ public class DashboardAdmin extends JFrame {
             }
         });
 
-        // Textos del lado izquierdo
         String nombreUsuario = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
         JPanel pnlTitulos = new JPanel(new GridLayout(2, 1));
         pnlTitulos.setOpaque(false); 
@@ -74,11 +69,9 @@ public class DashboardAdmin extends JFrame {
         pnlTitulos.add(lblSubtitulo);
         pnlHeader.add(pnlTitulos, BorderLayout.WEST);
 
-        // --- CONTROLES DE VENTANA + ACCIONES ---
         JPanel pnlEast = new JPanel(new BorderLayout(0, 15));
         pnlEast.setOpaque(false);
 
-        // Botones de Minimizar, Maximizar y Cerrar
         JPanel pnlControlesVentana = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         pnlControlesVentana.setOpaque(false);
 
@@ -103,12 +96,11 @@ public class DashboardAdmin extends JFrame {
         pnlControlesVentana.add(btnMaximizar);
         pnlControlesVentana.add(btnCerrarVentana);
 
-        // Botones de Acción (Retiro, Corte de Caja y Cerrar Sesión)
         JPanel pnlBotonesAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         pnlBotonesAccion.setOpaque(false);
 
         JButton btnRetiro = new JButton("💸 Retirar Efectivo");
-        btnRetiro.setBackground(new Color(245, 158, 11)); // Naranja
+        btnRetiro.setBackground(new Color(245, 158, 11)); 
         btnRetiro.setForeground(Color.WHITE);
         btnRetiro.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnRetiro.setFocusPainted(false);
@@ -135,7 +127,6 @@ public class DashboardAdmin extends JFrame {
         pnlBotonesAccion.add(btnCorteCaja);
         pnlBotonesAccion.add(btnLogout);
 
-        // --- EVENTOS ---
         btnRetiro.addActionListener(e -> {
             if (!cajaRepo.hayCajaAbierta()) {
                 JOptionPane.showMessageDialog(this, "Debe haber una caja abierta por el vendedor para registrar un retiro.", "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -144,10 +135,8 @@ public class DashboardAdmin extends JFrame {
             new DialogoRetiro(this).setVisible(true);
         });
 
-        // 2. Acción de Corte de Caja
         btnCorteCaja.addActionListener(e -> procesarCorteCaja());
         
-        // 3. Cerrar Sesión
         btnLogout.addActionListener(e -> {
             Sesion.setUsuarioActual(null);
             new Login().setVisible(true);
@@ -158,7 +147,6 @@ public class DashboardAdmin extends JFrame {
         pnlEast.add(pnlBotonesAccion, BorderLayout.SOUTH);
         pnlHeader.add(pnlEast, BorderLayout.EAST);
 
-        // --- CONTENEDOR DE PESTAÑAS ---
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("SansSerif", Font.BOLD, 16));
         tabbedPane.setFocusable(false); 
@@ -166,19 +154,17 @@ public class DashboardAdmin extends JFrame {
         tabbedPane.addTab("🏠 Inicio", new InicioPanel());
         tabbedPane.addTab("🛒 Punto de Venta", new CajaPanel());
         tabbedPane.addTab("📦 Inventario Local", new InventarioPanel());
-        tabbedPane.addTab("☁️ Otras Sucursales", new InventarioGlobalPanel()); // Índice 3
         tabbedPane.addTab("🚚 Proveedores", new ProveedoresPanel());
+        tabbedPane.addTab("☁️ Otras Sucursales", new InventarioGlobalPanel()); 
         tabbedPane.addTab("📊 Historial de Ventas", new HistorialVentasPanel());
         tabbedPane.addTab("👥 Usuarios", new UsuariosPanel());
         tabbedPane.addTab("💵 Cortes de Caja", new CortesCajaPanel());
+        tabbedPane.addTab("⚙️ Configuración", new ConfiguracionPanel());
 
-        // --- MAGIA VISUAL: ATENUAR EL COLOR SOLO EN LA NUBE ---
         tabbedPane.addChangeListener(e -> {
             if (tabbedPane.getSelectedIndex() == 3) {
-                // Al entrar a la pestaña 3, forzamos un azul opaco con transparencia
                 UIManager.put("TabbedPane.underlineColor", new Color(15, 67, 171, 100)); 
             } else {
-                // Al volver a cualquier otra pestaña, forzamos de nuevo tu azul oscuro
                 UIManager.put("TabbedPane.underlineColor", Color.decode("#0F43AB"));
             }
             SwingUtilities.updateComponentTreeUI(tabbedPane);
@@ -186,6 +172,52 @@ public class DashboardAdmin extends JFrame {
 
         add(pnlHeader, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void iniciarSistema() {
+        if (cajaRepo.hayCajaAbierta()) {
+            double fondoActual = cajaRepo.obtenerFondoInicial();
+            JOptionPane.showMessageDialog(null, 
+                "Turno en curso.\nFondo registrado en sistema: $" + String.format("%.2f", fondoActual), 
+                "Información de Caja", 
+                JOptionPane.INFORMATION_MESSAGE);
+            this.setVisible(true);
+        } else {
+            int opcion = JOptionPane.showConfirmDialog(null,
+                "La caja actualmente está CERRADA.\n¿Deseas abrir el turno de caja con fondo inicial ahora para poder cobrar ventas?",
+                "Apertura de Caja",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+            if (opcion == JOptionPane.YES_OPTION) {
+                if (ejecutarValidacionCaja()) {
+                    this.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Entrando al sistema en Modo Solo-Lectura.\nNo podrás realizar ventas hasta que inicies turno.", "Modo Administrativo", JOptionPane.WARNING_MESSAGE);
+                    this.setVisible(true);
+                }
+            } else {
+                this.setVisible(true);
+            }
+        }
+    }
+
+    private boolean ejecutarValidacionCaja() {
+        while (true) {
+            String input = JOptionPane.showInputDialog(null, "🔒 APERTURA DE TURNO (ADMIN)\nIngresa el fondo inicial en caja (efectivo base):", "0.00");
+            if (input == null) return false;
+            try {
+                double fondo = Double.parseDouble(input);
+                if (fondo < 0) throw new NumberFormatException();
+                
+                String vendedor = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
+                cajaRepo.abrirCaja(vendedor, fondo);
+                JOptionPane.showMessageDialog(null, "Caja abierta exitosamente con $" + String.format("%.2f", fondo));
+                return true;
+            } catch (NumberFormatException ex) { 
+                JOptionPane.showMessageDialog(null, "Por favor ingresa una cantidad numérica válida y positiva.", "Entrada Inválida", JOptionPane.WARNING_MESSAGE); 
+            }
+        }
     }
 
     private void procesarCorteCaja() {
@@ -235,13 +267,9 @@ public class DashboardAdmin extends JFrame {
                 
                 if (confirm == JOptionPane.YES_OPTION) {
                     if (cajaRepo.cerrarCaja(totalRealCajon)) {
-                        
-                        // Generamos el TXT
                         String vendedor = (Sesion.getUsuarioActual() != null) ? Sesion.getUsuarioActual().getUsername() : "Administrador";
                         util.ReporteCajaGenerator.generarTxtCorte(vendedor, fondo, ventas, totalEsperado, totalRealCajon, diferencia, estadoCorte);
-                        
                         JOptionPane.showMessageDialog(this, "Turno cerrado correctamente. El reporte TXT fue generado en la carpeta 'Cortes_Caja'.\nEl sistema está listo para un nuevo turno.", "Corte Exitoso", JOptionPane.INFORMATION_MESSAGE);
-                        
                     } else {
                         JOptionPane.showMessageDialog(this, "Error al guardar el corte en la base de datos.", "Error Crítico", JOptionPane.ERROR_MESSAGE);
                     }
@@ -274,14 +302,18 @@ public class DashboardAdmin extends JFrame {
             int w = getWidth();
             int h = getHeight();
 
-            g2d.setColor(new Color(30, 41, 59));
+            // --- DETECCIÓN DINÁMICA DE TEMA PARA EL HEADER ---
+            boolean isDark = UIManager.getBoolean("laf.dark");
+            Color colorFondoHeader = isDark ? new Color(15, 23, 42) : new Color(30, 41, 59);
+
+            g2d.setColor(colorFondoHeader);
             g2d.fillRect(0, 0, w, h);
 
             g2d.setColor(Color.decode("#0F43AB"));
             Path2D.Double poly = new Path2D.Double();
             poly.moveTo(w - 400, 0); 
-            poly.lineTo(w, 0);       
-            poly.lineTo(w, h);       
+            poly.lineTo(w, 0);        
+            poly.lineTo(w, h);        
             poly.lineTo(w - 450, h); 
             poly.closePath();
             g2d.fill(poly);

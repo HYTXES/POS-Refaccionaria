@@ -25,13 +25,19 @@ public class Login extends JFrame {
         setUndecorated(true);
         setResizable(false);
 
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color txtSecundario = isDark ? new Color(148, 163, 184) : new Color(100, 116, 139);
+
         PanelFondo pnlFondo = new PanelFondo();
         pnlFondo.setLayout(new BorderLayout());
         setContentPane(pnlFondo);
 
         // Arrastre de ventana
         pnlFondo.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { initialClick = e.getPoint(); }
+            public void mousePressed(MouseEvent e) {
+                initialClick = e.getPoint();
+            }
         });
         pnlFondo.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
@@ -66,7 +72,7 @@ public class Login extends JFrame {
         pnlTarjetaBienvenido.setAlignmentX(Component.CENTER_ALIGNMENT);
         pnlTarjetaBienvenido.setBorder(BorderFactory.createEmptyBorder(35, 20, 20, 20));
 
-        JLabel lblSaludo = new JLabel("¡H O L A   D E   N U E V O!", SwingConstants.CENTER);
+        JLabel lblSaludo = new JLabel("¡H O L A    D E    N U E V O!", SwingConstants.CENTER);
         lblSaludo.setFont(new Font("SansSerif", Font.BOLD, 11));
         lblSaludo.setForeground(new Color(255, 255, 255, 170));
         lblSaludo.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -90,27 +96,27 @@ public class Login extends JFrame {
 
         JLabel lblUser = new JLabel("👤 Usuario", SwingConstants.CENTER);
         lblUser.setFont(new Font("SansSerif", Font.BOLD, 14));
-        lblUser.setForeground(new Color(100, 116, 139));
+        lblUser.setForeground(txtSecundario); // Color dinámico
         lblUser.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        txtUsuario = new JTextField(); 
+
+        txtUsuario = new JTextField();
         txtUsuario.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         txtUsuario.setHorizontalAlignment(JTextField.CENTER);
         txtUsuario.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         JLabel lblPass = new JLabel("🔒 Contraseña", SwingConstants.CENTER);
         lblPass.setFont(new Font("SansSerif", Font.BOLD, 14));
-        lblPass.setForeground(new Color(100, 116, 139));
+        lblPass.setForeground(txtSecundario); // Color dinámico
         lblPass.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        txtPassword = new JPasswordField(); 
+
+        txtPassword = new JPasswordField();
         txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         txtPassword.setHorizontalAlignment(JTextField.CENTER);
         txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         JButton btnEntrar = new JButton("Iniciar Sesión");
         btnEntrar.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnEntrar.setBackground(Color.decode("#0F43AB")); 
+        btnEntrar.setBackground(Color.decode("#0F43AB"));
         btnEntrar.setForeground(Color.WHITE);
         btnEntrar.setFocusPainted(false);
         btnEntrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -128,7 +134,7 @@ public class Login extends JFrame {
         pnlTarjetaFormulario.add(btnEntrar);
 
         pnlCardsContainer.add(pnlTarjetaBienvenido);
-        pnlCardsContainer.add(Box.createRigidArea(new Dimension(0, 20))); 
+        pnlCardsContainer.add(Box.createRigidArea(new Dimension(0, 20)));
         pnlCardsContainer.add(pnlTarjetaFormulario);
 
         JPanel pnlCentro = new JPanel(new GridBagLayout());
@@ -145,7 +151,7 @@ public class Login extends JFrame {
     private void validarCredenciales() {
         String username = txtUsuario.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
-        
+
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingresa usuario y contraseña.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
@@ -155,17 +161,22 @@ public class Login extends JFrame {
 
         if (u != null) {
             Sesion.setUsuarioActual(u);
-            
+
             // --- INICIAR SINCRONIZADOR AL LOGEAR ---
             new SincronizadorNube().iniciar();
-            
+
             if (u.getRol().equals("Administrador")) {
-                new DashboardAdmin().setVisible(true);
-                this.dispose();
+                DashboardAdmin admin = new DashboardAdmin();
+                admin.iniciarSistema();
+                if (admin.isVisible()) {
+                    this.dispose();
+                }
             } else {
                 MenuVendedor mv = new MenuVendedor();
-                mv.iniciarSistema(); 
-                if (mv.isVisible()) this.dispose();
+                mv.iniciarSistema();
+                if (mv.isVisible()) {
+                    this.dispose();
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Datos incorrectos.", "Error de Acceso", JOptionPane.ERROR_MESSAGE);
@@ -175,94 +186,131 @@ public class Login extends JFrame {
     }
 
     private class PanelTarjetaBienvenida extends JPanel {
-        public PanelTarjetaBienvenida() { setOpaque(false); }
+
+        public PanelTarjetaBienvenida() {
+            setOpaque(false);
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
+
             int shadowOffset = 4;
             int margin = 4;
             int w = getWidth() - (margin * 2);
             int h = getHeight() - (margin * 2) - shadowOffset;
 
             // Sombra simétrica
-            g2.setColor(new Color(0, 0, 0, 15)); 
+            g2.setColor(new Color(0, 0, 0, 15));
             g2.fillRoundRect(margin, margin + shadowOffset, w, h, 20, 20);
-            
+
             // Cuerpo con Degradado
             GradientPaint gp = new GradientPaint(margin, margin, Color.decode("#0F43AB"), w, h, new Color(30, 41, 59));
             g2.setPaint(gp);
             g2.fillRoundRect(margin, margin, w, h, 20, 20);
-            
+
             // Círculos recortados al contenedor
             g2.setClip(margin, margin, w, h);
             g2.setColor(new Color(255, 255, 255, 12));
             g2.fillOval(getWidth() - 60, -20, 100, 100);
             g2.fillOval(-30, getHeight() - 50, 80, 80);
-            
+
             g2.dispose();
         }
     }
 
     private class PanelTarjeta extends JPanel {
-        public PanelTarjeta() { setOpaque(false); }
+
+        public PanelTarjeta() {
+            setOpaque(false);
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
+
             int shadowOffset = 4;
             int margin = 4;
             int w = getWidth() - (margin * 2);
             int h = getHeight() - (margin * 2) - shadowOffset;
 
             // Sombra simétrica
-            g2.setColor(new Color(0, 0, 0, 15)); 
+            g2.setColor(new Color(0, 0, 0, 15));
             g2.fillRoundRect(margin, margin + shadowOffset, w, h, 20, 20);
-            
-            // Fondo Blanco centrado
-            g2.setColor(Color.WHITE); 
+
+            // Fondo Blanco o Gris Oscuro según el tema
+            boolean isDark = UIManager.getBoolean("laf.dark");
+            g2.setColor(isDark ? new Color(30, 41, 59) : Color.WHITE);
             g2.fillRoundRect(margin, margin, w, h, 20, 20);
-            
+
             g2.dispose();
         }
     }
 
     private class PanelFondo extends JPanel {
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             int w = getWidth(), h = getHeight();
-            
-            g2.setColor(new Color(241, 245, 249)); 
+
+            boolean isDark = UIManager.getBoolean("laf.dark");
+            g2.setColor(isDark ? new Color(15, 23, 42) : new Color(241, 245, 249));
             g2.fillRect(0, 0, w, h);
-            
+
             g2.setColor(new Color(30, 41, 59));
             Path2D.Double p = new Path2D.Double();
-            p.moveTo(0, 0); p.lineTo(w, 0); p.lineTo(w, h * 0.45); p.lineTo(0, h * 0.65); p.closePath();
+            p.moveTo(0, 0);
+            p.lineTo(w, 0);
+            p.lineTo(w, h * 0.45);
+            p.lineTo(0, h * 0.65);
+            p.closePath();
             g2.fill(p);
-            
+
             g2.setColor(Color.decode("#0F43AB"));
             Path2D.Double pLinea = new Path2D.Double();
-            pLinea.moveTo(0, h * 0.65); pLinea.lineTo(w, h * 0.45); pLinea.lineTo(w, (h * 0.45) + 8); pLinea.lineTo(0, (h * 0.65) + 8); pLinea.closePath();
+            pLinea.moveTo(0, h * 0.65);
+            pLinea.lineTo(w, h * 0.45);
+            pLinea.lineTo(w, (h * 0.45) + 8);
+            pLinea.lineTo(0, (h * 0.65) + 8);
+            pLinea.closePath();
             g2.fill(pLinea);
-            
+
             g2.dispose();
         }
     }
 
     public static void main(String[] args) {
-        try { 
-            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf()); 
+        // 1. Cargamos la configuración de la base de datos a memoria
+        database.ConexionNube.cargarConfiguracionLocal();
+
+        // 2. Leemos si el usuario activó el modo oscuro
+        boolean modoOscuro = false;
+        String sql = "SELECT valor FROM configuracion WHERE clave = 'tema_oscuro'";
+        try (java.sql.Connection conn = database.ConexionDB.conectar(); java.sql.Statement stmt = conn.createStatement(); java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                modoOscuro = rs.getString("valor").equals("true");
+            }
+        } catch (Exception e) {
+        }
+
+        // 3. Aplicamos el tema elegido antes de dibujar la ventana
+        try {
+            if (modoOscuro) {
+                UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatDarkLaf());
+            } else {
+                UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+            }
             UIManager.put("TextComponent.arc", 15);
             UIManager.put("Button.arc", 15);
-        } catch (Exception e) {}
-        
-        database.ConexionNube.cargarConfiguracionLocal();
-        
+        } catch (Exception e) {
+        }
+
+        // 4. Lanzamos la aplicación
         SwingUtilities.invokeLater(() -> new Login().setVisible(true));
     }
 }

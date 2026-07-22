@@ -36,8 +36,14 @@ public class CajaPanel extends JPanel {
         this.repo = new ProductoLocalImpl();
         this.repoVentas = new VentaLocalImpl();
 
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+        Color txtSecundario = isDark ? new Color(148, 163, 184) : Color.GRAY;
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JPanel pnlSuperior = new JPanel(new BorderLayout(10, 10));
@@ -45,17 +51,21 @@ public class CajaPanel extends JPanel {
 
         JLabel lblTitulo = new JLabel("Punto de Venta");
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitulo.setForeground(txtPrincipal); // Color dinámico
 
         JPanel pnlEscaner = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlEscaner.setOpaque(false);
-        pnlEscaner.add(new JLabel("🔍 Buscar o Escanear: "));
+        
+        JLabel lblEscaner = new JLabel("🔍 Buscar o Escanear: ");
+        lblEscaner.setForeground(txtPrincipal); // Color dinámico
+        pnlEscaner.add(lblEscaner);
 
         txtCodigo = new JTextField(35);
         txtCodigo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         pnlEscaner.add(txtCodigo);
 
         JButton btnBuscar = new JButton("Agregar");
-        btnBuscar.setFocusable(false); // Evita bug de enter
+        btnBuscar.setFocusable(false); 
         pnlEscaner.add(btnBuscar);
 
         pnlSuperior.add(lblTitulo, BorderLayout.NORTH);
@@ -81,7 +91,7 @@ public class CajaPanel extends JPanel {
         tablaCarrito.getColumnModel().getColumn(2).setPreferredWidth(300);
         tablaCarrito.getColumnModel().getColumn(3).setPreferredWidth(100);
         tablaCarrito.getColumnModel().getColumn(4).setPreferredWidth(100);
-        
+
         JScrollPane scrollTabla = new JScrollPane(tablaCarrito);
 
         JPanel pnlInferior = new JPanel(new BorderLayout());
@@ -90,20 +100,20 @@ public class CajaPanel extends JPanel {
 
         JPanel pnlBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnlBotones.setOpaque(false);
-        
+
         btnEditarCantidad = new JButton("✏️ Modificar Cantidad");
         btnEditarCantidad.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnEditarCantidad.setFocusable(false); 
-        
+        btnEditarCantidad.setFocusable(false);
+
         btnEliminarArticulo = new JButton("❌ Quitar Artículo");
         btnEliminarArticulo.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnEliminarArticulo.setFocusable(false); 
-        
+        btnEliminarArticulo.setFocusable(false);
+
         btnCancelar = new JButton("🚮️ Cancelar Venta");
-        btnCancelar.setForeground(new Color(200, 0, 0));
+        btnCancelar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0)); // Rojo más legible en oscuro
         btnCancelar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnCancelar.setFocusable(false); 
-        
+        btnCancelar.setFocusable(false);
+
         pnlBotones.add(btnEditarCantidad);
         pnlBotones.add(btnEliminarArticulo);
         pnlBotones.add(btnCancelar);
@@ -113,14 +123,14 @@ public class CajaPanel extends JPanel {
 
         lblTotal = new JLabel("Total: $0.00");
         lblTotal.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTotal.setForeground(new Color(0, 100, 0));
+        lblTotal.setForeground(isDark ? new Color(100, 255, 100) : new Color(0, 100, 0)); // Verde brillante si es oscuro
 
         btnCobrar = new JButton("💸 COBRAR");
         btnCobrar.setFont(new Font("SansSerif", Font.BOLD, 24));
         btnCobrar.setBackground(new Color(0, 153, 51));
         btnCobrar.setForeground(Color.WHITE);
         btnCobrar.setFocusPainted(false);
-        btnCobrar.setFocusable(false); 
+        btnCobrar.setFocusable(false);
         btnCobrar.setPreferredSize(new Dimension(200, 60));
 
         pnlTotal.add(lblTotal);
@@ -134,7 +144,7 @@ public class CajaPanel extends JPanel {
         add(pnlInferior, BorderLayout.SOUTH);
 
         configurarBuscadorDinamico();
-        configurarFocoMagnetico(scrollTabla); // --- MAGIA DEL ESCÁNER APLICADA AQUÍ ---
+        configurarFocoMagnetico(scrollTabla); 
 
         txtCodigo.addActionListener(this::buscarYAgregarProductoLocal);
         btnBuscar.addActionListener(this::buscarYAgregarProductoLocal);
@@ -145,11 +155,11 @@ public class CajaPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Selecciona un artículo de la lista.", "Aviso", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            
+
             String codigo = modeloCarrito.getValueAt(fila, 1).toString();
             int cantActual = (int) modeloCarrito.getValueAt(fila, 0);
             Producto p = repo.buscarPorCodigo(codigo);
-            
+
             if (p != null) {
                 String input = JOptionPane.showInputDialog(this, "¿Nueva cantidad para " + p.getNombre() + "?", String.valueOf(cantActual));
                 if (input != null && !input.trim().isEmpty()) {
@@ -163,7 +173,7 @@ public class CajaPanel extends JPanel {
                             JOptionPane.showMessageDialog(this, "Stock insuficiente. Solo hay " + p.getStockActual() + " disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        
+
                         double nuevoSubtotal = nuevaCant * p.getPrecioVenta();
                         modeloCarrito.setValueAt(nuevaCant, fila, 0);
                         modeloCarrito.setValueAt(nuevoSubtotal, fila, 4);
@@ -196,6 +206,10 @@ public class CajaPanel extends JPanel {
         });
 
         btnCobrar.addActionListener(e -> {
+            if (!new repository.CajaLocalImpl().hayCajaAbierta()) {
+                JOptionPane.showMessageDialog(this, "Operación Denegada: La caja registradora está CERRADA.\nDebes iniciar un turno para poder procesar ventas.", "Caja Cerrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             if (modeloCarrito.getRowCount() == 0) {
                 JOptionPane.showMessageDialog(this, "El carrito está vacío.", "Aviso", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -203,12 +217,12 @@ public class CajaPanel extends JPanel {
 
             int confirm = JOptionPane.showConfirmDialog(this, String.format("¿Confirmar cobro por $%.2f?", totalVenta), "Confirmar Venta", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                String vendedor = (entities.Sesion.getUsuarioActual() != null) 
-                                  ? entities.Sesion.getUsuarioActual().getUsername() 
-                                  : "Usuario de Prueba";
-                                  
+                String vendedor = (entities.Sesion.getUsuarioActual() != null)
+                        ? entities.Sesion.getUsuarioActual().getUsername()
+                        : "Usuario de Prueba";
+
                 String idVenta = repoVentas.procesarVenta(modeloCarrito, totalVenta, vendedor);
-                
+
                 if (idVenta != null) {
                     JOptionPane.showMessageDialog(this, "Venta registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     util.TicketGenerator.generarTicket(idVenta, modeloCarrito, totalVenta, vendedor);
@@ -222,27 +236,22 @@ public class CajaPanel extends JPanel {
         SwingUtilities.invokeLater(() -> txtCodigo.requestFocusInWindow());
     }
 
-    // --- NUEVA LÓGICA DE FOCO MAGNÉTICO ---
     private void configurarFocoMagnetico(JScrollPane scrollTabla) {
-        // 1. Interceptor de Teclado (La solución infalible para el escáner)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            // Actuar solo si el panel de caja está visible en la pantalla y se presionó una tecla válida
             if (this.isShowing() && e.getID() == KeyEvent.KEY_TYPED) {
                 Window ventanaActiva = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
-                
-                // Nos aseguramos de estar en la ventana principal (evita robarle texto a un JOptionPane si está abierto)
+
                 if (ventanaActiva != null && ventanaActiva == SwingUtilities.getWindowAncestor(this)) {
                     if (!txtCodigo.isFocusOwner()) {
-                        txtCodigo.requestFocusInWindow(); // Obligamos el foco a volver a la caja de texto
-                        txtCodigo.setText(txtCodigo.getText() + e.getKeyChar()); // Pegamos la primera letra del escáner
-                        return true; // Consumimos el evento para que no se escriba doble
+                        txtCodigo.requestFocusInWindow(); 
+                        txtCodigo.setText(txtCodigo.getText() + e.getKeyChar()); 
+                        return true; 
                     }
                 }
             }
             return false;
         });
 
-        // 2. Imán de Clics (Recupera el foco inmediatamente si el usuario toca el fondo por error)
         MouseAdapter recuperadorDeFoco = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -267,9 +276,12 @@ public class CajaPanel extends JPanel {
         popupBusqueda.add(scrollSugerencias);
 
         txtCodigo.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { actualizarSugerencias(); }
-            @Override public void removeUpdate(DocumentEvent e) { actualizarSugerencias(); }
-            @Override public void changedUpdate(DocumentEvent e) { actualizarSugerencias(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) { actualizarSugerencias(); }
+            @Override
+            public void removeUpdate(DocumentEvent e) { actualizarSugerencias(); }
+            @Override
+            public void changedUpdate(DocumentEvent e) { actualizarSugerencias(); }
         });
 
         txtCodigo.addKeyListener(new KeyAdapter() {
@@ -286,9 +298,7 @@ public class CajaPanel extends JPanel {
 
         listaSugerencias.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                seleccionarDeSugerencias();
-            }
+            public void mouseClicked(MouseEvent e) { seleccionarDeSugerencias(); }
         });
 
         listaSugerencias.addKeyListener(new KeyAdapter() {
@@ -342,11 +352,11 @@ public class CajaPanel extends JPanel {
 
     private void buscarYAgregarProductoLocal(ActionEvent e) {
         String texto = txtCodigo.getText().trim();
-        if (texto.isEmpty()) return;
-        
+        if (texto.isEmpty()) { return; }
+
         popupBusqueda.setVisible(false);
         Producto p = repo.buscarPorCodigo(texto);
-        
+
         if (p == null) {
             if (productosSugeridos.size() == 1) {
                 p = productosSugeridos.get(0);

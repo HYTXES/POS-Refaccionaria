@@ -15,14 +15,19 @@ public class InventarioGlobalPanel extends JPanel {
     private DefaultTableModel modeloGlobal;
 
     public InventarioGlobalPanel() {
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // --- TÍTULO ---
         JLabel lblTitulo = new JLabel("Inventario Global - Nube");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTitulo.setForeground(new Color(30, 41, 59));
+        lblTitulo.setForeground(txtPrincipal); // Color dinámico
         add(lblTitulo, BorderLayout.NORTH);
 
         // --- TABLA PRINCIPAL ---
@@ -69,7 +74,7 @@ public class InventarioGlobalPanel extends JPanel {
             }
             String codigo = tablaGlobal.getValueAt(fila, 0).toString();
             String nombre = tablaGlobal.getValueAt(fila, 1).toString();
-            mostrarDetallesSucursal(codigo, nombre);
+            mostrarDetallesSucursal(codigo, nombre, isDark);
         });
 
         // Cargar datos al mostrar el panel por primera vez
@@ -109,18 +114,28 @@ public class InventarioGlobalPanel extends JPanel {
         }
     }
 
-    private void mostrarDetallesSucursal(String codigo, String nombreProducto) {
+    private void mostrarDetallesSucursal(String codigo, String nombreProducto, boolean isDark) {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Detalles de Stock", true);
         dialog.setSize(500, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout(10, 10));
-        dialog.getContentPane().setBackground(Color.WHITE);
+        
+        Color bgDialog = isDark ? new Color(30, 41, 59) : Color.WHITE;
+        Color txtDialog = isDark ? Color.WHITE : Color.decode("#1E293B");
+        
+        dialog.getContentPane().setBackground(bgDialog);
 
         JPanel pnlHeader = new JPanel(new GridLayout(2, 1));
-        pnlHeader.setBackground(Color.WHITE);
+        pnlHeader.setOpaque(false);
         pnlHeader.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        pnlHeader.add(new JLabel("<html><b>Producto:</b> " + nombreProducto + "</html>"));
-        pnlHeader.add(new JLabel("<html><b>Código:</b> " + codigo + "</html>"));
+        
+        JLabel lblProd = new JLabel("<html><b>Producto:</b> " + nombreProducto + "</html>");
+        lblProd.setForeground(txtDialog);
+        JLabel lblCod = new JLabel("<html><b>Código:</b> " + codigo + "</html>");
+        lblCod.setForeground(txtDialog);
+        
+        pnlHeader.add(lblProd);
+        pnlHeader.add(lblCod);
         dialog.add(pnlHeader, BorderLayout.NORTH);
 
         DefaultTableModel modeloDetalle = new DefaultTableModel(new String[]{"Sucursal", "Stock Disponible", "Última Actualización"}, 0) {
@@ -152,7 +167,7 @@ public class InventarioGlobalPanel extends JPanel {
         JButton btnCerrar = new JButton("Cerrar");
         btnCerrar.addActionListener(e -> dialog.dispose());
         JPanel pnlSur = new JPanel();
-        pnlSur.setBackground(Color.WHITE);
+        pnlSur.setOpaque(false);
         pnlSur.add(btnCerrar);
         dialog.add(pnlSur, BorderLayout.SOUTH);
 

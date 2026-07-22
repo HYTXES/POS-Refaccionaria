@@ -19,8 +19,8 @@ public class ConexionDB {
         try (InputStream input = ConexionDB.class.getClassLoader().getResourceAsStream("config.properties")) {
             
             if (input == null) {
-                System.err.println("Advertencia: No se encontró config.properties. Se usará la ruta por defecto.");
-                urlDB = "jdbc:sqlite:refaccionaria_local.db"; // Modo de contingencia
+                System.err.println("Advertencia: No se encontra config.properties. Se usara la ruta por defecto.");
+                urlDB = "jdbc:sqlite:refaccionaria_local.db";
                 return;
             }
             

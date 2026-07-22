@@ -27,8 +27,13 @@ public class InventarioPanel extends JPanel {
         this.repoProd = new ProductoLocalImpl();
         this.repoProv = new ProveedorLocalImpl();
 
+        // --- DETECCIÓN DE TEMA MODO OSCURO ---
+        boolean isDark = UIManager.getBoolean("laf.dark");
+        Color bgFondo = isDark ? new Color(15, 23, 42) : Color.WHITE;
+        Color txtPrincipal = isDark ? Color.WHITE : Color.decode("#1E293B");
+
         setLayout(new BorderLayout(10, 10));
-        setBackground(Color.WHITE);
+        setBackground(bgFondo);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JPanel pnlHerramientas = new JPanel(new GridLayout(2, 1, 5, 5));
@@ -36,19 +41,26 @@ public class InventarioPanel extends JPanel {
 
         JPanel pnlBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlBusqueda.setOpaque(false);
-        pnlBusqueda.add(new JLabel("Buscar: "));
+        
+        JLabel lblBuscar = new JLabel("Buscar: ");
+        lblBuscar.setForeground(txtPrincipal);
+        pnlBusqueda.add(lblBuscar);
+        
         txtBuscar = new JTextField(20);
         pnlBusqueda.add(txtBuscar);
 
-        pnlBusqueda.add(new JLabel(" Filtrar Proveedor: "));
+        JLabel lblFiltro = new JLabel(" Filtrar Proveedor: ");
+        lblFiltro.setForeground(txtPrincipal);
+        pnlBusqueda.add(lblFiltro);
+        
         comboProveedores = new JComboBox<>();
         pnlBusqueda.add(comboProveedores);
 
-        pnlHerramientas.add(new JLabel("Gestión de Inventario", JLabel.LEFT) {
-            {
-                setFont(new Font("Arial", Font.BOLD, 22));
-            }
-        });
+        JLabel lblTitulo = new JLabel("Gestión de Inventario", JLabel.LEFT);
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 22));
+        lblTitulo.setForeground(txtPrincipal);
+
+        pnlHerramientas.add(lblTitulo);
         pnlHerramientas.add(pnlBusqueda);
 
         String[] columnas = {"ID", "Código", "Nombre", "Marca", "Proveedor", "Descripción", "P. Compra", "P. Venta", "Stock", "Mínimo"};
@@ -76,23 +88,27 @@ public class InventarioPanel extends JPanel {
         tablaProductos.getColumnModel().getColumn(8).setPreferredWidth(45);
         tablaProductos.getColumnModel().getColumn(9).setPreferredWidth(50);
 
+        // --- RENDERIZADOR ADAPTABLE AL TEMA (BAJO STOCK) ---
         tablaProductos.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                int stockActual = Integer.parseInt(table.getValueAt(row, 8).toString());
-                int stockCritico = Integer.parseInt(table.getValueAt(row, 9).toString());
+                try {
+                    int stockActual = Integer.parseInt(table.getValueAt(row, 8).toString());
+                    int stockCritico = Integer.parseInt(table.getValueAt(row, 9).toString());
 
-                if (!isSelected) {
-                    if (stockActual <= stockCritico) {
-                        c.setBackground(new Color(255, 230, 230));
-                        c.setForeground(new Color(180, 0, 0));
-                    } else {
-                        c.setBackground(Color.WHITE);
-                        c.setForeground(Color.BLACK);
+                    if (!isSelected) {
+                        if (stockActual <= stockCritico) {
+                            c.setBackground(isDark ? new Color(60, 20, 20) : new Color(255, 230, 230));
+                            c.setForeground(isDark ? new Color(255, 120, 120) : new Color(180, 0, 0));
+                        } else {
+                            c.setBackground(table.getBackground());
+                            c.setForeground(table.getForeground());
+                        }
                     }
-                }
+                } catch (Exception ignored) {}
+
                 return c;
             }
         });
@@ -123,7 +139,7 @@ public class InventarioPanel extends JPanel {
         JButton btnReabastecer = new JButton("📦 Reabastecer Stock");
         JButton btnEditar = new JButton("📝 Modificar");
         JButton btnEliminar = new JButton("🚮 Dar de baja");
-        btnEliminar.setForeground(new Color(200, 0, 0));
+        btnEliminar.setForeground(isDark ? new Color(255, 100, 100) : new Color(200, 0, 0));
 
         pnlAcciones.add(btnNuevo);
         pnlAcciones.add(btnReabastecer);
